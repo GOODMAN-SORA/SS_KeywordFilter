@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>스소 키워드 필터링 시스템</title>
+				<title>스소 데이터 키워드 필터</title>
 				<script src="https://cdn.tailwindcss.com"></script>
 				<style>
 					@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
@@ -83,20 +83,25 @@
 			} catch (error) {
 			console.error("데이터 로드 실패:", error);
 			document.getElementById('tag-container').innerHTML =
-			`<p class="text-rose-500">❌ FilteredDB.json 데이터를 불러오는 데 실패했습니다.</p>`;
+			`<p class="text-rose-500 font-bold">❌ 데이터를 불러오거나 처리하는 데 실패했습니다. (콘솔 창 확인)</p>`;
 			}
 			}
 
+			// [에러 수정 부분]: 변경된 JSON 구조(itemData.tags)에 맞게 태그를 긁어오도록 수정
 			function renderTags() {
 			const allTags = new Set();
 
-			// 태그 수집
 			Object.values(db.Characters).forEach(char => {
-			Object.values(char.skills).forEach(tags => tags.forEach(t => allTags.add(t)));
-			Object.values(char.potentials).forEach(tags => tags.forEach(t => allTags.add(t)));
+			Object.values(char.skills).forEach(itemData => {
+			if (itemData.tags) itemData.tags.forEach(t => allTags.add(t));
 			});
+			Object.values(char.potentials).forEach(itemData => {
+			if (itemData.tags) itemData.tags.forEach(t => allTags.add(t));
+			});
+			});
+
 			Object.values(db.Records).forEach(rec => {
-			rec.main_skill.forEach(t => allTags.add(t));
+			if (rec.main_skill) rec.main_skill.forEach(t => allTags.add(t));
 			Object.values(rec.sub_skills).forEach(tags => tags.forEach(t => allTags.add(t)));
 			});
 
@@ -134,21 +139,19 @@
 			const recContainer = document.getElementById('record-results');
 			const selectedArr = Array.from(selectedTags);
 
-			// --- 캐릭터 필터 ---
+			// --- 캐릭터 렌더링 ---
 			let charHtml = '';
 			let charMatchedCount = 0;
 
 			Object.entries(db.Characters).forEach(([id, data]) => {
 			let matchedItems = [];
 
-			// 스킬 검사 (data.skills[code] = { Name: "...", tags: [...] })
 			Object.entries(data.skills).forEach(([code, itemData]) => {
 			if (selectedArr.every(t => itemData.tags.includes(t))) {
 			matchedItems.push({ type: '스킬', name: itemData.Name, tags: itemData.tags });
 			}
 			});
 
-			// 잠재력 검사 (data.potentials[code] = { Name: "...", tags: [...] })
 			Object.entries(data.potentials).forEach(([code, itemData]) => {
 			if (selectedArr.every(t => itemData.tags.includes(t))) {
 			matchedItems.push({ type: '잠재력', name: itemData.Name, tags: itemData.tags });
@@ -177,7 +180,7 @@
 			}
 			});
 
-			// --- 레코드 필터 ---
+			// --- 레코드 렌더링 ---
 			let recHtml = '';
 			let recMatchedCount = 0;
 
@@ -213,12 +216,14 @@
 			}
 			});
 
-			charContainer.innerHTML = charHtml;
-			recContainer.innerHTML = recHtml;
+			charContainer.innerHTML = charHtml || '<p class="text-slate-400 italic py-10 text-center">조건에 맞는 캐릭터가 없습니다.</p>';
+			recContainer.innerHTML = recHtml || '<p class="text-slate-400 italic py-10 text-center">조건에 맞는 레코드가 없습니다.</p>';
+
 			document.getElementById('char-count').textContent = charMatchedCount;
 			document.getElementById('rec-count').textContent = recMatchedCount;
 			}
 
+			// 앱 시작
 			loadData();
 		</script>
 	</body>
