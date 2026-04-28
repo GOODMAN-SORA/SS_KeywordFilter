@@ -140,30 +140,25 @@
 
 			Object.entries(db.Characters).forEach(([id, data]) => {
 			let matchedItems = [];
-			Object.entries(data.skills).forEach(([code, tags]) => {
-			if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '스킬', code, tags });
+			// 스킬 및 잠재력 매칭 검사
+			Object.entries(data.skills).forEach(([skillName, tags]) => {
+			if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '스킬', name: skillName, tags });
 			});
-			Object.entries(data.potentials).forEach(([code, tags]) => {
-			if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '잠재력', code, tags });
+			Object.entries(data.potentials).forEach(([potName, tags]) => {
+			if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '잠재력', name: potName, tags });
 			});
 
-			if (matchedItems.length > 0 || (selectedArr.length === 0)) {
+			if (matchedItems.length > 0 || selectedArr.length === 0) {
 			charMatchedCount++;
 			charHtml += `
-			<div class="result-card bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-indigo-500">
-				<div class="flex justify-between items-start mb-3">
-					<h3 class="text-xl font-bold text-slate-800">${data.Name}</h3>
-					<span class="text-[10px] font-mono text-slate-300 uppercase tracking-tighter">ID: ${id}</span>
-				</div>
-				<div class="space-y-2">
+			<div class="result-card bg-white p-5 rounded-xl shadow-sm border-l-4 border-l-indigo-500">
+				<div class="font-bold text-xl text-slate-800">${data.Name}</div>
+				<div class="space-y-2 mt-3">
 					${matchedItems.map(item => `
-					<div class="text-sm bg-indigo-50/50 p-2.5 rounded-lg border border-indigo-100/50">
-						<div class="flex items-center gap-2 mb-1">
-							<span class="px-1.5 py-0.5 bg-indigo-500 text-white text-[10px] font-bold rounded">${item.type}</span>
-							<span class="text-slate-400 text-[11px] font-mono">${item.code}</span>
-						</div>
-						<div class="flex flex-wrap gap-1">
-							${item.tags.map(t => `<span class="text-[10px] bg-white text-indigo-600 border border-indigo-100 px-1.5 py-0.5 rounded-md font-medium">${t}</span>`).join('')}
+					<div class="text-sm bg-indigo-50 p-2 rounded">
+						<span class="font-bold text-indigo-600">[${item.type}] ${item.name}</span>
+						<div class="flex flex-wrap gap-1 mt-1">
+							${item.tags.map(t => `<span class="text-[10px] bg-white border border-indigo-200 px-1.5 rounded">${t}</span>`).join('')}
 						</div>
 					</div>
 					`).join('')}
@@ -187,22 +182,17 @@
 			}
 			});
 
-			if (matchedItems.length > 0 || (selectedArr.length === 0)) {
+			if (matchedItems.length > 0 || selectedArr.length === 0) {
 			recMatchedCount++;
 			recHtml += `
-			<div class="result-card bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-emerald-500">
-				<div class="flex justify-between items-start mb-3">
-					<h3 class="text-xl font-bold text-slate-800">${data.Name}</h3>
-					<span class="text-[10px] font-mono text-slate-300 uppercase tracking-tighter">ID: ${id}</span>
-				</div>
-				<div class="space-y-2">
+			<div class="result-card bg-white p-5 rounded-xl shadow-sm border-l-4 border-emerald-500">
+				<div class="font-bold text-xl text-slate-800">${data.Name}</div>
+				<div class="space-y-2 mt-3">
 					${matchedItems.map(item => `
-					<div class="text-sm bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100/50">
-						<div class="flex items-center gap-2 mb-1">
-							<span class="px-1.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded">${item.type}</span>
-						</div>
-						<div class="flex flex-wrap gap-1">
-							${item.tags.map(t => `<span class="text-[10px] bg-white text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-md font-medium">${t}</span>`).join('')}
+					<div class="text-sm bg-emerald-50 p-2 rounded">
+						<span class="font-bold text-emerald-600">[${item.type}]</span>
+						<div class="flex flex-wrap gap-1 mt-1">
+							${item.tags.map(t => `<span class="text-[10px] bg-white border border-emerald-200 px-1.5 rounded">${t}</span>`).join('')}
 						</div>
 					</div>
 					`).join('')}
@@ -211,9 +201,8 @@
 			}
 			});
 
-			charContainer.innerHTML = charHtml || '<p class="text-slate-400 italic py-10 text-center">조건에 맞는 캐릭터가 없습니다.</p>';
-			recContainer.innerHTML = recHtml || '<p class="text-slate-400 italic py-10 text-center">조건에 맞는 레코드가 없습니다.</p>';
-
+			charContainer.innerHTML = charHtml || '<p class="text-slate-400">결과 없음</p>';
+			recContainer.innerHTML = recHtml || '<p class="text-slate-400">결과 없음</p>';
 			document.getElementById('char-count').textContent = charMatchedCount;
 			document.getElementById('rec-count').textContent = recMatchedCount;
 			}
