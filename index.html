@@ -2,101 +2,201 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>스텔라소라 키워드 도감</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스소 데이터 키워드 필터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; background: #f4f6f9; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        h1 { text-align: center; color: #2c3e50; }
-        .keyword-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 25px; }
-        .kw-btn { padding: 12px 20px; border: none; border-radius: 8px; background: #2980b9; color: white; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;}
-        .kw-btn:hover { background: #1c5980; transform: translateY(-2px); }
-        .category-title { border-bottom: 3px solid #3498db; color: #2c3e50; padding-bottom: 8px; margin-top: 35px; font-size: 20px;}
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        th, td { border: 1px solid #eaecef; padding: 12px; text-align: left; vertical-align: middle; }
-        th { background: #f8f9fa; color: #333; font-weight: bold; }
-        td.char-name { color: #e67e22; font-weight: 800; font-size: 15px; }
-        td.skill-name { color: #2980b9; font-weight: bold; }
-        .empty-msg { color: #95a5a6; font-style: italic; text-align: center; padding: 20px; background: #fdfdfd; border-radius: 8px; }
+        .tag-btn.active { @apply bg-blue-600 text-white border-blue-600; }
+        .result-card { transition: all 0.2s; }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
 
-<div class="container">
-    <h1>⚔️ 스텔라소라 키워드 필터링</h1>
-    <div id="keywordContainer" class="keyword-buttons"></div>
-    <h2 id="currentKeywordTitle" style="text-align: center; color: #c0392b; margin-top: 10px;">키워드를 선택해주세요</h2>
-    <div id="resultContainer"></div>
-</div>
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-10 text-center">
+            <h1 class="text-3xl font-bold mb-2">🔍 스소 키워드 검색기</h1>
+            <p class="text-gray-600">보유한 태그를 선택하여 캐릭터와 레코드를 필터링하세요.</p>
+        </header>
 
-<script>
-    let db = {};
+        <section class="bg-white p-6 rounded-xl shadow-sm mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold italic text-blue-700"># 필터 태그</h2>
+                <button onclick="resetFilters()" class="text-sm text-gray-500 hover:text-red-500 underline">초기화</button>
+            </div>
+            <div id="tag-container" class="flex flex-wrap gap-2">
+                <p class="text-gray-400 italic">데이터를 불러오는 중...</p>
+            </div>
+        </section>
 
-    fetch('keyword_table.json')
-        .then(res => res.json())
-        .then(data => {
-            db = data;
-            renderKeywordButtons();
-        });
-
-    function renderKeywordButtons() {
-        const container = document.getElementById('keywordContainer');
-        for (const keyword in db) {
-            const btn = document.createElement('button');
-            btn.className = 'kw-btn';
-            btn.innerText = `# ${keyword}`;
-            btn.onclick = () => renderTables(keyword);
-            container.appendChild(btn);
-        }
-    }
-
-    function renderTables(keyword) {
-        document.getElementById('currentKeywordTitle').innerText = `[ ${keyword} ] 검색 결과`;
-        const container = document.getElementById('resultContainer');
-        container.innerHTML = ''; 
-
-        const categories = ['캐릭터스킬', '잠재력', '레코드'];
-        
-        categories.forEach(cat => {
-            const items = db[keyword][cat];
-            let html = `<h3 class="category-title">▶ ${cat} <span style="font-size:14px; color:#7f8c8d;">(${items.length}건)</span></h3>`;
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            if (items.length === 0) {
-                html += `<p class="empty-msg">해당 키워드가 포함된 ${cat} 데이터가 없습니다.</p>`;
-            } else {
-                // 💡 [핵심] 분류에 따라 테이블 헤더(열 개수)를 다르게 생성
-                if (cat === '레코드') {
-                    html += `
-                        <table>
-                            <tr>
-                                <th style="width: 25%;">레코드 이름</th>
-                                <th style="width: 75%;">상세 효과</th>
-                            </tr>`;
-                    items.forEach(item => {
-                        html += `<tr><td class="skill-name">${item.이름}</td><td>${item.설명}</td></tr>`;
-                    });
-                } else {
-                    html += `
-                        <table>
-                            <tr>
-                                <th style="width: 20%;">캐릭터 이름</th>
-                                <th style="width: 25%;">스킬/잠재력 이름</th>
-                                <th style="width: 55%;">상세 효과</th>
-                            </tr>`;
-                    items.forEach(item => {
-                        html += `
-                            <tr>
-                                <td class="char-name">${item.캐릭터명}</td>
-                                <td class="skill-name">${item.이름}</td>
-                                <td>${item.설명}</td>
-                            </tr>`;
-                    });
-                }
-                html += `</table>`;
-            }
-            container.innerHTML += html;
-        });
-    }
-</script>
+            <div>
+                <h2 class="text-xl font-bold mb-4 border-l-4 border-blue-500 pl-2">캐릭터 (Characters)</h2>
+                <div id="character-results" class="grid grid-cols-1 gap-4">
+                    </div>
+            </div>
 
+            <div>
+                <h2 class="text-xl font-bold mb-4 border-l-4 border-green-500 pl-2">레코드 (Records)</h2>
+                <div id="record-results" class="grid grid-cols-1 gap-4">
+                    </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let db = null;
+        let selectedTags = new Set();
+
+        // 1. 데이터 로드
+        async function loadData() {
+            try {
+                const response = await fetch('FilteredDB.json');
+                db = await response.json();
+                renderTags();
+                filterResults();
+            } catch (error) {
+                console.error("데이터 로드 실패:", error);
+                document.getElementById('tag-container').innerHTML = "❌ FilteredDB.json 파일을 찾을 수 없습니다.";
+            }
+        }
+
+        // 2. 전체 데이터에서 유니크한 태그 추출 및 버튼 생성
+        function renderTags() {
+            const allTags = new Set();
+            
+            // 캐릭터 데이터에서 태그 수집
+            Object.values(db.Characters).forEach(char => {
+                Object.values(char.skills).forEach(tags => tags.forEach(t => allTags.add(t)));
+                Object.values(char.potentials).forEach(tags => tags.forEach(t => allTags.add(t)));
+            });
+
+            // 레코드 데이터에서 태그 수집
+            Object.values(db.Records).forEach(rec => {
+                rec.main_skill.forEach(t => allTags.add(t));
+                Object.values(rec.sub_skills).forEach(tags => tags.forEach(t => allTags.add(t)));
+            });
+
+            const container = document.getElementById('tag-container');
+            container.innerHTML = '';
+
+            Array.from(allTags).sort().forEach(tag => {
+                const btn = document.createElement('button');
+                btn.textContent = tag;
+                btn.className = `tag-btn px-3 py-1 rounded-full border border-gray-300 text-sm hover:border-blue-500 transition-colors bg-gray-100`;
+                btn.onclick = () => toggleTag(tag, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        // 3. 태그 선택/해제 로직
+        function toggleTag(tag, btn) {
+            if (selectedTags.has(tag)) {
+                selectedTags.delete(tag);
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-100');
+            } else {
+                selectedTags.add(tag);
+                btn.classList.add('bg-blue-600', 'text-white');
+                btn.classList.remove('bg-gray-100');
+            }
+            filterResults();
+        }
+
+        function resetFilters() {
+            selectedTags.clear();
+            document.querySelectorAll('.tag-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-100');
+            });
+            filterResults();
+        }
+
+        // 4. 핵심 필터링 로직
+        function filterResults() {
+            const charContainer = document.getElementById('character-results');
+            const recContainer = document.getElementById('record-results');
+            
+            const selectedArr = Array.from(selectedTags);
+
+            // --- 캐릭터 필터 ---
+            let charHtml = '';
+            Object.entries(db.Characters).forEach(([id, data]) => {
+                let matchedItems = [];
+
+                // 스킬 검사
+                Object.entries(data.skills).forEach(([code, tags]) => {
+                    if (selectedArr.every(t => tags.includes(t))) {
+                        matchedItems.push({ type: '스킬', code, tags });
+                    }
+                });
+                // 잠재력 검사
+                Object.entries(data.potentials).forEach(([code, tags]) => {
+                    if (selectedArr.every(t => tags.includes(t))) {
+                        matchedItems.push({ type: '잠재력', code, tags });
+                    }
+                });
+
+                if (matchedItems.length > 0 || selectedArr.length === 0) {
+                    charHtml += `
+                        <div class="result-card bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                            <div class="font-bold text-lg mb-1 text-blue-800">캐릭터 ID: ${id}</div>
+                            <div class="space-y-2">
+                                ${matchedItems.map(item => `
+                                    <div class="text-sm bg-blue-50 p-2 rounded">
+                                        <span class="font-semibold text-blue-600">[${item.type}]</span> 
+                                        <span class="text-gray-500 text-xs">${item.code}</span>
+                                        <div class="flex flex-wrap gap-1 mt-1">
+                                            ${item.tags.map(t => `<span class="text-[10px] bg-white border px-1 rounded">${t}</span>`).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
+            });
+
+            // --- 레코드 필터 ---
+            let recHtml = '';
+            Object.entries(db.Records).forEach(([id, data]) => {
+                let matchedItems = [];
+                
+                // 메인 스킬 검사
+                if (selectedArr.every(t => data.main_skill.includes(t))) {
+                    matchedItems.push({ type: '메인', tags: data.main_skill });
+                }
+                // 보조 스킬 검사
+                Object.entries(data.sub_skills).forEach(([idx, tags]) => {
+                    if (selectedArr.every(t => tags.includes(t))) {
+                        matchedItems.push({ type: `보조 ${idx}`, tags });
+                    }
+                });
+
+                if (matchedItems.length > 0 || selectedArr.length === 0) {
+                    recHtml += `
+                        <div class="result-card bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                            <div class="font-bold text-lg mb-1 text-green-800">레코드 ID: ${id}</div>
+                            <div class="space-y-2">
+                                ${matchedItems.map(item => `
+                                    <div class="text-sm bg-green-50 p-2 rounded">
+                                        <span class="font-semibold text-green-600">[${item.type}]</span>
+                                        <div class="flex flex-wrap gap-1 mt-1">
+                                            ${item.tags.map(t => `<span class="text-[10px] bg-white border px-1 rounded">${t}</span>`).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
+            });
+
+            charContainer.innerHTML = charHtml || '<p class="text-gray-400">일치하는 캐릭터가 없습니다.</p>';
+            recContainer.innerHTML = recHtml || '<p class="text-gray-400">일치하는 레코드가 없습니다.</p>';
+        }
+
+        // 페이지 로드 시 시작
+        loadData();
+    </script>
 </body>
 </html>
