@@ -140,9 +140,12 @@
 
 			Object.entries(db.Characters).forEach(([id, data]) => {
 			let matchedItems = [];
-			// 스킬 및 잠재력 매칭 검사
+			// data.skills 안의 [키, 값]을 뽑아올 때, 키를 'skillName'으로 받아옵니다.
 			Object.entries(data.skills).forEach(([skillName, tags]) => {
-			if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '스킬', name: skillName, tags });
+			if (selectedArr.every(t => tags.includes(t))) {
+			// 뽑아온 한글 이름(skillName)을 item.name에 넣어서 HTML로 보냅니다.
+			matchedItems.push({ type: '스킬', name: skillName, tags });
+			}
 			});
 			Object.entries(data.potentials).forEach(([potName, tags]) => {
 			if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '잠재력', name: potName, tags });
