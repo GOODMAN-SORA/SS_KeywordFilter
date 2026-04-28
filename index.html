@@ -1,220 +1,224 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스소 키워드 필터링 시스템</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
-        body { font-family: 'Noto+Sans+KR', sans-serif; }
-        .tag-btn.active { @apply bg-indigo-600 text-white border-indigo-600 shadow-md; }
-        .result-card { transition: transform 0.2s, shadow 0.2s; }
-        .result-card:hover { transform: translateY(-2px); }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-900 min-h-screen">
+	<head>
+		<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>스소 키워드 필터링 시스템</title>
+				<script src="https://cdn.tailwindcss.com"></script>
+				<style>
+					@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
+					body { font-family: 'Noto+Sans+KR', sans-serif; }
+					.tag-btn.active { @apply bg-indigo-600 text-white border-indigo-600 shadow-md; }
+					.result-card { transition: transform 0.2s, shadow 0.2s; }
+					.result-card:hover { transform: translateY(-2px); }
+				</style>
+			</head>
+	<body class="bg-slate-50 text-slate-900 min-h-screen">
 
-    <div class="container mx-auto px-4 py-10 max-w-6xl">
-        <header class="mb-12 text-center">
-            <h1 class="text-4xl font-extrabold text-indigo-900 mb-3 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                🔍 스소 데이터 키워드 검색기
-            </h1>
-            <p class="text-slate-500 text-lg">보유한 태그를 선택하여 캐릭터와 레코드 조합을 확인하세요.</p>
-        </header>
+		<div class="container mx-auto px-4 py-10 max-w-6xl">
+			<header class="mb-12 text-center">
+				<h1 class="text-4xl font-extrabold text-indigo-900 mb-3 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+					🔍 스소 데이터 키워드 검색기
+				</h1>
+				<p class="text-slate-500 text-lg">보유한 태그를 선택하여 캐릭터와 레코드 조합을 확인하세요.</p>
+			</header>
 
-        <section class="bg-white p-8 rounded-2xl shadow-xl shadow-slate-200/60 mb-10 border border-slate-100">
-            <div class="flex justify-between items-end mb-6">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <span class="w-2 h-6 bg-indigo-500 rounded-full"></span>
-                        필터 태그 선택
-                    </h2>
-                    <p class="text-sm text-slate-400 mt-1">* 다중 선택 시 모든 태그를 포함(AND)한 결과가 표시됩니다.</p>
-                </div>
-                <button onclick="resetFilters()" class="px-4 py-2 text-sm font-medium text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
-                    초기화
-                </button>
-            </div>
-            <div id="tag-container" class="flex flex-wrap gap-2.5">
-                <div class="animate-pulse flex space-x-4">
-                    <div class="h-8 bg-slate-200 rounded-full w-24"></div>
-                    <div class="h-8 bg-slate-200 rounded-full w-20"></div>
-                    <div class="h-8 bg-slate-200 rounded-full w-28"></div>
-                </div>
-            </div>
-        </section>
+			<section class="bg-white p-8 rounded-2xl shadow-xl shadow-slate-200/60 mb-10 border border-slate-100">
+				<div class="flex justify-between items-end mb-6">
+					<div>
+						<h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+							<span class="w-2 h-6 bg-indigo-500 rounded-full"></span>
+							필터 태그 선택
+						</h2>
+						<p class="text-sm text-slate-400 mt-1">* 다중 선택 시 모든 태그를 포함(AND)한 결과가 표시됩니다.</p>
+					</div>
+					<button onclick="resetFilters()" class="px-4 py-2 text-sm font-medium text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
+						초기화
+					</button>
+				</div>
+				<div id="tag-container" class="flex flex-wrap gap-2.5">
+					<div class="animate-pulse flex space-x-4">
+						<div class="h-8 bg-slate-200 rounded-full w-24"></div>
+						<div class="h-8 bg-slate-200 rounded-full w-20"></div>
+						<div class="h-8 bg-slate-200 rounded-full w-28"></div>
+					</div>
+				</div>
+			</section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            
-            <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-indigo-900 flex items-center justify-between border-b pb-3">
-                    <span>👤 캐릭터 <small class="text-slate-400 font-normal ml-2" id="char-count">0</small></span>
-                </h2>
-                <div id="character-results" class="grid grid-cols-1 gap-4">
-                    </div>
-            </div>
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-            <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-emerald-900 flex items-center justify-between border-b pb-3">
-                    <span>💿 레코드 <small class="text-slate-400 font-normal ml-2" id="rec-count">0</small></span>
-                </h2>
-                <div id="record-results" class="grid grid-cols-1 gap-4">
-                    </div>
-            </div>
+				<div class="space-y-6">
+					<h2 class="text-2xl font-bold text-indigo-900 flex items-center justify-between border-b pb-3">
+						<span>
+							👤 캐릭터 <small class="text-slate-400 font-normal ml-2" id="char-count">0</small>
+						</span>
+					</h2>
+					<div id="character-results" class="grid grid-cols-1 gap-4">
+					</div>
+				</div>
 
-        </div>
-    </div>
+				<div class="space-y-6">
+					<h2 class="text-2xl font-bold text-emerald-900 flex items-center justify-between border-b pb-3">
+						<span>
+							💿 레코드 <small class="text-slate-400 font-normal ml-2" id="rec-count">0</small>
+						</span>
+					</h2>
+					<div id="record-results" class="grid grid-cols-1 gap-4">
+					</div>
+				</div>
 
-    <script>
-        let db = null;
-        let selectedTags = new Set();
+			</div>
+		</div>
 
-        async function loadData() {
-            try {
-                const response = await fetch('FilteredDB.json');
-                db = await response.json();
-                renderTags();
-                filterResults();
-            } catch (error) {
-                console.error("데이터 로드 실패:", error);
-                document.getElementById('tag-container').innerHTML = 
-                    `<p class="text-rose-500">❌ FilteredDB.json 데이터를 불러오는 데 실패했습니다.</p>`;
-            }
-        }
+		<script>
+			let db = null;
+			let selectedTags = new Set();
 
-        function renderTags() {
-            const allTags = new Set();
-            
-            // 태그 수집
-            Object.values(db.Characters).forEach(char => {
-                Object.values(char.skills).forEach(tags => tags.forEach(t => allTags.add(t)));
-                Object.values(char.potentials).forEach(tags => tags.forEach(t => allTags.add(t)));
-            });
-            Object.values(db.Records).forEach(rec => {
-                rec.main_skill.forEach(t => allTags.add(t));
-                Object.values(rec.sub_skills).forEach(tags => tags.forEach(t => allTags.add(t)));
-            });
+			async function loadData() {
+			try {
+			const response = await fetch('FilteredDB.json');
+			db = await response.json();
+			renderTags();
+			filterResults();
+			} catch (error) {
+			console.error("데이터 로드 실패:", error);
+			document.getElementById('tag-container').innerHTML =
+			`<p class="text-rose-500">❌ FilteredDB.json 데이터를 불러오는 데 실패했습니다.</p>`;
+			}
+			}
 
-            const container = document.getElementById('tag-container');
-            container.innerHTML = '';
+			function renderTags() {
+			const allTags = new Set();
 
-            Array.from(allTags).sort().forEach(tag => {
-                const btn = document.createElement('button');
-                btn.textContent = tag;
-                btn.className = `tag-btn px-4 py-1.5 rounded-xl border border-slate-200 text-sm font-medium bg-slate-50 text-slate-600 hover:border-indigo-400 hover:text-indigo-600 transition-all`;
-                btn.onclick = () => toggleTag(tag, btn);
-                container.appendChild(btn);
-            });
-        }
+			// 태그 수집
+			Object.values(db.Characters).forEach(char => {
+			Object.values(char.skills).forEach(tags => tags.forEach(t => allTags.add(t)));
+			Object.values(char.potentials).forEach(tags => tags.forEach(t => allTags.add(t)));
+			});
+			Object.values(db.Records).forEach(rec => {
+			rec.main_skill.forEach(t => allTags.add(t));
+			Object.values(rec.sub_skills).forEach(tags => tags.forEach(t => allTags.add(t)));
+			});
 
-        function toggleTag(tag, btn) {
-            if (selectedTags.has(tag)) {
-                selectedTags.delete(tag);
-                btn.classList.remove('active');
-            } else {
-                selectedTags.add(tag);
-                btn.classList.add('active');
-            }
-            filterResults();
-        }
+			const container = document.getElementById('tag-container');
+			container.innerHTML = '';
 
-        function resetFilters() {
-            selectedTags.clear();
-            document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
-            filterResults();
-        }
+			Array.from(allTags).sort().forEach(tag => {
+			const btn = document.createElement('button');
+			btn.textContent = tag;
+			btn.className = `tag-btn px-4 py-1.5 rounded-xl border border-slate-200 text-sm font-medium bg-slate-50 text-slate-600 hover:border-indigo-400 hover:text-indigo-600 transition-all`;
+			btn.onclick = () => toggleTag(tag, btn);
+			container.appendChild(btn);
+			});
+			}
 
-        function filterResults() {
-            const charContainer = document.getElementById('character-results');
-            const recContainer = document.getElementById('record-results');
-            const selectedArr = Array.from(selectedTags);
+			function toggleTag(tag, btn) {
+			if (selectedTags.has(tag)) {
+			selectedTags.delete(tag);
+			btn.classList.remove('active');
+			} else {
+			selectedTags.add(tag);
+			btn.classList.add('active');
+			}
+			filterResults();
+			}
 
-            // --- 캐릭터 렌더링 ---
-            let charHtml = '';
-            let charMatchedCount = 0;
+			function resetFilters() {
+			selectedTags.clear();
+			document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
+			filterResults();
+			}
 
-            Object.entries(db.Characters).forEach(([id, data]) => {
-                let matchedItems = [];
-                Object.entries(data.skills).forEach(([code, tags]) => {
-                    if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '스킬', code, tags });
-                });
-                Object.entries(data.potentials).forEach(([code, tags]) => {
-                    if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '잠재력', code, tags });
-                });
+			function filterResults() {
+			const charContainer = document.getElementById('character-results');
+			const recContainer = document.getElementById('record-results');
+			const selectedArr = Array.from(selectedTags);
 
-                if (matchedItems.length > 0 || (selectedArr.length === 0)) {
-                    charMatchedCount++;
-                    charHtml += `
-                        <div class="result-card bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-indigo-500">
-                            <div class="flex justify-between items-start mb-3">
-                                <h3 class="text-xl font-bold text-slate-800">${data.Name}</h3>
-                                <span class="text-[10px] font-mono text-slate-300 uppercase tracking-tighter">ID: ${id}</span>
-                            </div>
-                            <div class="space-y-2">
-                                ${matchedItems.map(item => `
-                                    <div class="text-sm bg-indigo-50/50 p-2.5 rounded-lg border border-indigo-100/50">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="px-1.5 py-0.5 bg-indigo-500 text-white text-[10px] font-bold rounded">${item.type}</span>
-                                            <span class="text-slate-400 text-[11px] font-mono">${item.code}</span>
-                                        </div>
-                                        <div class="flex flex-wrap gap-1">
-                                            ${item.tags.map(t => `<span class="text-[10px] bg-white text-indigo-600 border border-indigo-100 px-1.5 py-0.5 rounded-md font-medium">${t}</span>`).join('')}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>`;
-                }
-            });
+			// --- 캐릭터 렌더링 ---
+			let charHtml = '';
+			let charMatchedCount = 0;
 
-            // --- 레코드 렌더링 ---
-            let recHtml = '';
-            let recMatchedCount = 0;
+			Object.entries(db.Characters).forEach(([id, data]) => {
+			let matchedItems = [];
+			Object.entries(data.skills).forEach(([code, tags]) => {
+			if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '스킬', code, tags });
+			});
+			Object.entries(data.potentials).forEach(([code, tags]) => {
+			if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '잠재력', code, tags });
+			});
 
-            Object.entries(db.Records).forEach(([id, data]) => {
-                let matchedItems = [];
-                if (selectedArr.every(t => data.main_skill.includes(t))) {
-                    matchedItems.push({ type: '메인 스킬', tags: data.main_skill });
-                }
-                Object.entries(data.sub_skills).forEach(([idx, tags]) => {
-                    if (selectedArr.every(t => tags.includes(t))) {
-                        matchedItems.push({ type: `보조 스킬 ${idx}`, tags });
-                    }
-                });
+			if (matchedItems.length > 0 || (selectedArr.length === 0)) {
+			charMatchedCount++;
+			charHtml += `
+			<div class="result-card bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-indigo-500">
+				<div class="flex justify-between items-start mb-3">
+					<h3 class="text-xl font-bold text-slate-800">${data.Name}</h3>
+					<span class="text-[10px] font-mono text-slate-300 uppercase tracking-tighter">ID: ${id}</span>
+				</div>
+				<div class="space-y-2">
+					${matchedItems.map(item => `
+					<div class="text-sm bg-indigo-50/50 p-2.5 rounded-lg border border-indigo-100/50">
+						<div class="flex items-center gap-2 mb-1">
+							<span class="px-1.5 py-0.5 bg-indigo-500 text-white text-[10px] font-bold rounded">${item.type}</span>
+							<span class="text-slate-400 text-[11px] font-mono">${item.code}</span>
+						</div>
+						<div class="flex flex-wrap gap-1">
+							${item.tags.map(t => `<span class="text-[10px] bg-white text-indigo-600 border border-indigo-100 px-1.5 py-0.5 rounded-md font-medium">${t}</span>`).join('')}
+						</div>
+					</div>
+					`).join('')}
+				</div>
+			</div>`;
+			}
+			});
 
-                if (matchedItems.length > 0 || (selectedArr.length === 0)) {
-                    recMatchedCount++;
-                    recHtml += `
-                        <div class="result-card bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-emerald-500">
-                            <div class="flex justify-between items-start mb-3">
-                                <h3 class="text-xl font-bold text-slate-800">${data.Name}</h3>
-                                <span class="text-[10px] font-mono text-slate-300 uppercase tracking-tighter">ID: ${id}</span>
-                            </div>
-                            <div class="space-y-2">
-                                ${matchedItems.map(item => `
-                                    <div class="text-sm bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100/50">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="px-1.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded">${item.type}</span>
-                                        </div>
-                                        <div class="flex flex-wrap gap-1">
-                                            ${item.tags.map(t => `<span class="text-[10px] bg-white text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-md font-medium">${t}</span>`).join('')}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>`;
-                }
-            });
+			// --- 레코드 렌더링 ---
+			let recHtml = '';
+			let recMatchedCount = 0;
 
-            charContainer.innerHTML = charHtml || '<p class="text-slate-400 italic py-10 text-center">조건에 맞는 캐릭터가 없습니다.</p>';
-            recContainer.innerHTML = recHtml || '<p class="text-slate-400 italic py-10 text-center">조건에 맞는 레코드가 없습니다.</p>';
-            
-            document.getElementById('char-count').textContent = charMatchedCount;
-            document.getElementById('rec-count').textContent = recMatchedCount;
-        }
+			Object.entries(db.Records).forEach(([id, data]) => {
+			let matchedItems = [];
+			if (selectedArr.every(t => data.main_skill.includes(t))) {
+			matchedItems.push({ type: '메인 스킬', tags: data.main_skill });
+			}
+			Object.entries(data.sub_skills).forEach(([idx, tags]) => {
+			if (selectedArr.every(t => tags.includes(t))) {
+			matchedItems.push({ type: `보조 스킬 ${idx}`, tags });
+			}
+			});
 
-        loadData();
-    </script>
-</body>
+			if (matchedItems.length > 0 || (selectedArr.length === 0)) {
+			recMatchedCount++;
+			recHtml += `
+			<div class="result-card bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-emerald-500">
+				<div class="flex justify-between items-start mb-3">
+					<h3 class="text-xl font-bold text-slate-800">${data.Name}</h3>
+					<span class="text-[10px] font-mono text-slate-300 uppercase tracking-tighter">ID: ${id}</span>
+				</div>
+				<div class="space-y-2">
+					${matchedItems.map(item => `
+					<div class="text-sm bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100/50">
+						<div class="flex items-center gap-2 mb-1">
+							<span class="px-1.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded">${item.type}</span>
+						</div>
+						<div class="flex flex-wrap gap-1">
+							${item.tags.map(t => `<span class="text-[10px] bg-white text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-md font-medium">${t}</span>`).join('')}
+						</div>
+					</div>
+					`).join('')}
+				</div>
+			</div>`;
+			}
+			});
+
+			charContainer.innerHTML = charHtml || '<p class="text-slate-400 italic py-10 text-center">조건에 맞는 캐릭터가 없습니다.</p>';
+			recContainer.innerHTML = recHtml || '<p class="text-slate-400 italic py-10 text-center">조건에 맞는 레코드가 없습니다.</p>';
+
+			document.getElementById('char-count').textContent = charMatchedCount;
+			document.getElementById('rec-count').textContent = recMatchedCount;
+			}
+
+			loadData();
+		</script>
+	</body>
 </html>
