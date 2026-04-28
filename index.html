@@ -115,47 +115,69 @@
 
         // 4. 핵심 필터링 로직
         function filterResults() {
-            const charContainer = document.getElementById('character-results');
-            const recContainer = document.getElementById('record-results');
-            
-            const selectedArr = Array.from(selectedTags);
+        const charContainer = document.getElementById('character-results');
+        const recContainer = document.getElementById('record-results');
+        const selectedArr = Array.from(selectedTags);
 
-            // --- 캐릭터 필터 ---
-            let charHtml = '';
-            Object.entries(db.Characters).forEach(([id, data]) => {
-                let matchedItems = [];
-
-                // 스킬 검사
-                Object.entries(data.skills).forEach(([code, tags]) => {
-                    if (selectedArr.every(t => tags.includes(t))) {
-                        matchedItems.push({ type: '스킬', code, tags });
-                    }
-                });
-                // 잠재력 검사
-                Object.entries(data.potentials).forEach(([code, tags]) => {
-                    if (selectedArr.every(t => tags.includes(t))) {
-                        matchedItems.push({ type: '잠재력', code, tags });
-                    }
-                });
-
-                if (matchedItems.length > 0 || selectedArr.length === 0) {
-                    charHtml += `
-                        <div class="result-card bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                            <div class="font-bold text-lg mb-1 text-blue-800">캐릭터 ID: ${id}</div>
-                            <div class="space-y-2">
-                                ${matchedItems.map(item => `
-                                    <div class="text-sm bg-blue-50 p-2 rounded">
-                                        <span class="font-semibold text-blue-600">[${item.type}]</span> 
-                                        <span class="text-gray-500 text-xs">${item.code}</span>
-                                        <div class="flex flex-wrap gap-1 mt-1">
-                                            ${item.tags.map(t => `<span class="text-[10px] bg-white border px-1 rounded">${t}</span>`).join('')}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>`;
-                }
+        // --- 캐릭터 필터 ---
+        let charHtml = '';
+        Object.entries(db.Characters).forEach(([id, data]) => {
+            let matchedItems = [];
+            Object.entries(data.skills).forEach(([code, tags]) => {
+                if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '스킬', code, tags });
             });
+            Object.entries(data.potentials).forEach(([code, tags]) => {
+                if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: '잠재력', code, tags });
+            });
+
+            if (matchedItems.length > 0 || selectedArr.length === 0) {
+                charHtml += `
+                    <div class="result-card bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                        <div class="font-bold text-xl mb-1 text-gray-800">${data.name} <span class="text-xs text-gray-400 font-normal">ID: ${id}</span></div>
+                        <div class="space-y-2">
+                            ${matchedItems.map(item => `
+                                <div class="text-sm bg-blue-50 p-2 rounded">
+                                    <span class="font-bold text-blue-600">[${item.type}]</span>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        ${item.tags.map(t => `<span class="text-[10px] bg-white border px-1 rounded">${t}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            }
+        });
+
+        // --- 레코드 필터 ---
+        let recHtml = '';
+        Object.entries(db.Records).forEach(([id, data]) => {
+            let matchedItems = [];
+            if (selectedArr.every(t => data.main_skill.includes(t))) matchedItems.push({ type: '메인', tags: data.main_skill });
+            Object.entries(data.sub_skills).forEach(([idx, tags]) => {
+                if (selectedArr.every(t => tags.includes(t))) matchedItems.push({ type: `보조 ${idx}`, tags });
+            });
+
+            if (matchedItems.length > 0 || selectedArr.length === 0) {
+                recHtml += `
+                    <div class="result-card bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                        <div class="font-bold text-xl mb-1 text-gray-800">${data.name} <span class="text-xs text-gray-400 font-normal">ID: ${id}</span></div>
+                        <div class="space-y-2">
+                            ${matchedItems.map(item => `
+                                <div class="text-sm bg-green-50 p-2 rounded">
+                                    <span class="font-bold text-green-600">[${item.type}]</span>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        ${item.tags.map(t => `<span class="text-[10px] bg-white border px-1 rounded">${t}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            }
+        });
+
+        charContainer.innerHTML = charHtml || '<p class="text-gray-400">일치하는 캐릭터가 없습니다.</p>';
+        recContainer.innerHTML = recHtml || '<p class="text-gray-400">일치하는 레코드가 없습니다.</p>';
+    }
 
             // --- 레코드 필터 ---
             let recHtml = '';
