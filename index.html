@@ -1,97 +1,102 @@
 <!DOCTYPE html>
 <html lang="ko">
-	<head>
-		<meta charset="UTF-8">
-			<title>스텔라소라 키워드 도감</title>
-			<style>
-				body { font-family: 'Malgun Gothic', sans-serif; background: #f0f2f5; padding: 20px; }
-				.container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-				h1 { text-align: center; color: #333; }
-				.keyword-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; justify-content: center; }
-				.kw-btn { padding: 10px 15px; border: none; border-radius: 20px; background: #3498db; color: white; cursor: pointer; font-size: 16px; font-weight: bold;}
-				.kw-btn:hover { background: #2980b9; }
-				.category-title { border-bottom: 2px solid #3498db; color: #2c3e50; padding-bottom: 5px; margin-top: 30px;}
-				table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-				th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-				th { background: #f8f9fa; }
-				.empty-msg { color: #7f8c8d; font-style: italic; }
-			</style>
-		</head>
-	<body>
+<head>
+    <meta charset="UTF-8">
+    <title>스텔라소라 키워드 도감</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; background: #f4f6f9; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        h1 { text-align: center; color: #2c3e50; }
+        .keyword-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 25px; }
+        .kw-btn { padding: 12px 20px; border: none; border-radius: 8px; background: #2980b9; color: white; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;}
+        .kw-btn:hover { background: #1c5980; transform: translateY(-2px); }
+        .category-title { border-bottom: 3px solid #3498db; color: #2c3e50; padding-bottom: 8px; margin-top: 35px; font-size: 20px;}
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        th, td { border: 1px solid #eaecef; padding: 12px; text-align: left; vertical-align: middle; }
+        th { background: #f8f9fa; color: #333; font-weight: bold; }
+        td.char-name { color: #e67e22; font-weight: 800; font-size: 15px; }
+        td.skill-name { color: #2980b9; font-weight: bold; }
+        .empty-msg { color: #95a5a6; font-style: italic; text-align: center; padding: 20px; background: #fdfdfd; border-radius: 8px; }
+    </style>
+</head>
+<body>
 
-		<div class="container">
-			<h1>⚔️ 키워드별 데이터 조회</h1>
+<div class="container">
+    <h1>⚔️ 스텔라소라 키워드 필터링</h1>
+    <div id="keywordContainer" class="keyword-buttons"></div>
+    <h2 id="currentKeywordTitle" style="text-align: center; color: #c0392b; margin-top: 10px;">키워드를 선택해주세요</h2>
+    <div id="resultContainer"></div>
+</div>
 
-			<div id="keywordContainer" class="keyword-buttons"></div>
+<script>
+    let db = {};
 
-			<h2 id="currentKeywordTitle" style="text-align: center; color: #e74c3c;">키워드를 선택해주세요</h2>
+    fetch('keyword_table.json')
+        .then(res => res.json())
+        .then(data => {
+            db = data;
+            renderKeywordButtons();
+        });
 
-			<div id="resultContainer"></div>
-		</div>
+    function renderKeywordButtons() {
+        const container = document.getElementById('keywordContainer');
+        for (const keyword in db) {
+            const btn = document.createElement('button');
+            btn.className = 'kw-btn';
+            btn.innerText = `# ${keyword}`;
+            btn.onclick = () => renderTables(keyword);
+            container.appendChild(btn);
+        }
+    }
 
-		<script>
-			let db = {};
+    function renderTables(keyword) {
+        document.getElementById('currentKeywordTitle').innerText = `[ ${keyword} ] 검색 결과`;
+        const container = document.getElementById('resultContainer');
+        container.innerHTML = ''; 
 
-			// 파이썬으로 만든 결과물 로드
-			fetch('keyword_table.json')
-			.then(res => res.json())
-			.then(data => {
-			db = data;
-			renderKeywordButtons();
-			});
+        const categories = ['캐릭터스킬', '잠재력', '레코드'];
+        
+        categories.forEach(cat => {
+            const items = db[keyword][cat];
+            let html = `<h3 class="category-title">▶ ${cat} <span style="font-size:14px; color:#7f8c8d;">(${items.length}건)</span></h3>`;
+            
+            if (items.length === 0) {
+                html += `<p class="empty-msg">해당 키워드가 포함된 ${cat} 데이터가 없습니다.</p>`;
+            } else {
+                // 💡 [핵심] 분류에 따라 테이블 헤더(열 개수)를 다르게 생성
+                if (cat === '레코드') {
+                    html += `
+                        <table>
+                            <tr>
+                                <th style="width: 25%;">레코드 이름</th>
+                                <th style="width: 75%;">상세 효과</th>
+                            </tr>`;
+                    items.forEach(item => {
+                        html += `<tr><td class="skill-name">${item.이름}</td><td>${item.설명}</td></tr>`;
+                    });
+                } else {
+                    html += `
+                        <table>
+                            <tr>
+                                <th style="width: 20%;">캐릭터 이름</th>
+                                <th style="width: 25%;">스킬/잠재력 이름</th>
+                                <th style="width: 55%;">상세 효과</th>
+                            </tr>`;
+                    items.forEach(item => {
+                        html += `
+                            <tr>
+                                <td class="char-name">${item.캐릭터명}</td>
+                                <td class="skill-name">${item.이름}</td>
+                                <td>${item.설명}</td>
+                            </tr>`;
+                    });
+                }
+                html += `</table>`;
+            }
+            container.innerHTML += html;
+        });
+    }
+</script>
 
-			// 1. 위에 키워드 버튼들 생성
-			function renderKeywordButtons() {
-			const container = document.getElementById('keywordContainer');
-			for (const keyword in db) {
-			const btn = document.createElement('button');
-			btn.className = 'kw-btn';
-			btn.innerText = keyword;
-			btn.onclick = () => renderTables(keyword);
-			container.appendChild(btn);
-			}
-			}
-
-			// 2. 버튼 클릭 시 해당 키워드의 스킬/잠재력/레코드 테이블 렌더링
-			function renderTables(keyword) {
-			document.getElementById('currentKeywordTitle').innerText = `[ ${keyword} ] 필터링 결과`;
-			const container = document.getElementById('resultContainer');
-			container.innerHTML = ''; // 초기화
-
-			const categories = ['캐릭터스킬', '잠재력', '레코드'];
-
-			categories.forEach(cat => {
-			const items = db[keyword][cat];
-
-			let html = `<h3 class="category-title">▶ ${cat} (${items.length}개)</h3>`;
-
-			if (items.length === 0) {
-			html += `<p class="empty-msg">해당하는 데이터가 없습니다.</p>`;
-			} else {
-			html += `
-			<table>
-				<tr>
-					<th style="width: 25%;">이름 (코드)</th>
-					<th style="width: 75%;">상세 효과</th>
-				</tr>`;
-				items.forEach(item => {
-				html += `
-				<tr>
-					<td>
-						<strong>${item.이름}</strong>
-						<br>
-							<span style="font-size:12px; color:#888;">${item.코드}</span>
-					</td>
-					<td>${item.설명}</td>
-				</tr>`;
-				});
-				html += `
-			</table>`;
-			}
-			container.innerHTML += html;
-			});
-			}
-		</script>
-
-	</body>
+</body>
 </html>
