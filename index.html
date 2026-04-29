@@ -122,24 +122,12 @@
 				return new RegExp(pattern, 'i');
 				}
 
-				let db = null;
-				let allUniqueTags = [];
-				let selectedTags = new Set();
-
 				async function init() {
 				try {
-				console.log("데이터 로드 시작...");
 				const res = await fetch('FilteredDB.json');
-
-				if (!res.ok) throw new Error(`서버 응답 오류: ${res.status}`);
+				if (!res.ok) throw new Error(`데이터 파일 로드 실패: ${res.status}`);
 
 				db = await res.json();
-				console.log("데이터 로드 성공:", db);
-
-				// 데이터 검증
-				if (!db.Characters || !db.Records) {
-				throw new Error("데이터 구조가 올바르지 않습니다. Characters 또는 Records가 없습니다.");
-				}
 
 				// 태그 목록 추출
 				const tagSet = new Set();
@@ -153,206 +141,165 @@
 				});
 
 				allUniqueTags = Array.from(tagSet).sort((a, b) => a.localeCompare(b, 'ko'));
-				console.log("태그 추출 완료:", allUniqueTags);
 
 				setupSearch();
 				filterAndRender();
 				} catch(e) {
-				console.error("데이터 로드 중 에러 발생:", e);
-				document.body.innerHTML = `<div style="padding:20px; color:red; font-weight:bold;">
-					데이터 로드 실패: ${e.message}<br>F12를 눌러 콘솔을 확인하세요.</div>`;
+				console.error("초기화 에러:", e);
 				}
 				}
 
-				// 가나다 순 정렬
-				allUniqueTags = Array.from(tagSet).sort((a, b) => a.localeCompare(b, 'ko'));
+				// 초성 검색 정규식 생성기
+				function makeChosungRegex(searchQuery) {
+				const CHOSUNG = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+				const HANGUL_START = 44032;
+				let pattern = '';
+				for (let i = 0; i < searchQuery.length; i++) {
+            let char = searchQuery[i];
+            let chosungIndex = CHOSUNG.indexOf(char);
+            if (chosungIndex > -1) {
+                let begin = HANGUL_START + (chosungIndex * 588);
+                let end = begin + 587;
+                pattern += `[${char}\\u${begin.toString(16).padStart(4, '0')}-\\u${end.toString(16).padStart(4, '0')}]`;
+            } else {
+                pattern += char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+				}
+				pattern += '\\s*';
+				}
+				return new RegExp(pattern, 'i');
+				}
 
-				setupSearch();
+				function setupSearch() {
+				const input = document.getElementById('tag-input');
+				const suggestionBox = document.getElementById('tag-suggestions');
+
+				input.onfocus = () => {
+				const filtered = allUniqueTags.filter(t => !selectedTags.has(t));
+				renderSuggestions(filtered);
+				};
+				input.oninput = (e) => {
+				const val = e.target.value.trim();
+				if(!val) return;
+				const regex = makeChosungRegex(val);
+				const filtered = allUniqueTags.filter(t => !selectedTags.has(t) && regex.test(t));
+				renderSuggestions(filtered);
+				};
+
+				function renderSuggestions(list) {
+				if(list.length > 0) {
+				suggestionBox.innerHTML = list.map(t =>
+				`<li class="px-5 py-3 hover:bg-indigo-50 cursor-pointer border-b border-slate-50" onmousedown="addTag('${t}')">${t}</li>`
+				).join('');
+				suggestionBox.classList.remove('hidden');
+				} else {
+				suggestionBox.classList.add('hidden');
+				}
+				}
+
+				document.addEventListener('mousedown', (e) => {
+				if(!e.target.closest('#tag-input') && !e.target.closest('#tag-suggestions')) {
+				suggestionBox.classList.add('hidden');
+				}
+				});
+				}
+
+				function addTag(tag) {
+				selectedTags.add(tag);
+				document.getElementById('tag-input').value = '';
+				renderSelectedTags();
 				filterAndRender();
-				} catch(e) {
-				console.error(e);
-				document.getElementById('character-list').innerHTML = `<p class="text-rose-500 font-bold p-4 text-center">데이터를 불러오지 못했습니다. (FilteredDB.json 확인)</p>`;
-			}
-			}
+				}
 
-			function setupSearch() {
-			const input = document.getElementById('tag-input');
-			const suggestionBox = document.getElementById('tag-suggestions');
+				function removeTag(tag) {
+				selectedTags.delete(tag);
+				renderSelectedTags();
+				filterAndRender();
+				}
 
-			// 드롭다운 리스트를 그리는 함수
-			const showSuggestions = (query) => {
-			const val = query.trim();
-			let filtered = [];
+				function renderSelectedTags() {
+				const container = document.getElementById('selected-tags-container');
+				if(selectedTags.size === 0) {
+				container.innerHTML = '<span class="text-slate-400 italic text-sm">선택된 태그가 없습니다.</span>';
+				return;
+				}
+				container.innerHTML = Array.from(selectedTags).map(t =>
+				`<span class="selected-tag" onclick="removeTag('${t}')">
+					${t} <span>&times;</span>
+				</span>`
+				).join('');
+				}
 
-			if (!val) {
-			// 입력값이 없으면 선택되지 않은 전체 목록 보여줌
-			filtered = allUniqueTags.filter(t => !selectedTags.has(t));
-			} else {
-			// 입력값이 있으면 초성 정규식을 기반으로 필터링
-			try {
-			const regex = makeChosungRegex(val);
-			filtered = allUniqueTags.filter(t => !selectedTags.has(t) && regex.test(t));
-			} catch (e) {
-			filtered = []; // 정규식 에러 방어
-			}
-			}
+				function resetFilters() {
+				selectedTags.clear();
+				renderSelectedTags();
+				filterAndRender();
+				}
 
-			if(filtered.length > 0) {
-			// onmousedown을 써야 input blur보다 먼저 클릭이 감지됩니다.
-			suggestionBox.innerHTML = filtered.map(t =>
-			`<li class="px-5 py-3 hover:bg-indigo-50 hover:text-indigo-700 cursor-pointer transition-colors" onmousedown="addTag('${t}')">${t}</li>`
-			).join('');
-			suggestionBox.classList.remove('hidden');
-			} else {
-			suggestionBox.innerHTML = `<li class="px-5 py-4 text-slate-400 text-center italic">일치하는 태그가 없습니다.</li>`;
-			suggestionBox.classList.remove('hidden');
-			}
-			};
+				function filterAndRender() {
+				const charContainer = document.getElementById('character-list');
+				const recContainer = document.getElementById('record-list');
+				const selectedArr = Array.from(selectedTags);
 
-			// 이벤트 리스너 연결
-			input.onfocus = () => showSuggestions(input.value);
-			input.oninput = (e) => showSuggestions(e.target.value);
+				let charHtml = '', charCount = 0;
+				Object.entries(db.Characters).forEach(([id, data]) => {
+				let matches = [];
+				Object.values(data.skills).forEach(s => { if(selectedArr.every(t => s.tags.includes(t))) matches.push({type:'스킬', name:s.Name, tags:s.tags}); });
+				Object.values(data.potentials).forEach(p => { if(selectedArr.every(t => p.tags.includes(t))) matches.push({type:'잠재력', name:p.Name, tags:p.tags}); });
 
-			// 외부 빈 공간 클릭 시 드롭다운 닫기
-			document.addEventListener('mousedown', (e) => {
-			if(!e.target.closest('#tag-input') && !e.target.closest('#tag-suggestions')) {
-			suggestionBox.classList.add('hidden');
-			}
-			});
-			}
-
-			function addTag(tag) {
-			selectedTags.add(tag);
-			const input = document.getElementById('tag-input');
-			input.value = ''; // 입력창 비우기
-			document.getElementById('tag-suggestions').classList.add('hidden');
-			renderSelectedTags();
-			filterAndRender();
-			}
-
-			function removeTag(tag) {
-			selectedTags.delete(tag);
-			renderSelectedTags();
-			filterAndRender();
-			}
-
-			function renderSelectedTags() {
-			const container = document.getElementById('selected-tags-container');
-			if(selectedTags.size === 0) {
-			container.innerHTML = '<span class="text-slate-400 italic text-sm">선택된 태그가 없습니다.</span>';
-			return;
-			}
-			container.innerHTML = Array.from(selectedTags).map(t =>
-			`<span class="selected-tag" onclick="removeTag('${t}')">
-				${t} <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 opacity-70" viewBox="0 0 20 20" fill="currentColor">
-					<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-				</svg>
-			</span>`
-			).join('');
-			}
-
-			function resetFilters() {
-			selectedTags.clear();
-			document.getElementById('tag-input').value = '';
-			renderSelectedTags();
-			filterAndRender();
-			}
-
-			function filterAndRender() {
-			const charContainer = document.getElementById('character-list');
-			const recContainer = document.getElementById('record-list');
-			const selectedArr = Array.from(selectedTags);
-
-			// --- 캐릭터 필터링 ---
-			let charHtml = '';
-			let charCount = 0;
-			Object.entries(db.Characters).forEach(([id, data]) => {
-			let matches = [];
-			Object.values(data.skills).forEach(s => { if(selectedArr.every(t => s.tags.includes(t))) matches.push({type:'스킬', name:s.Name, tags:s.tags}); });
-			Object.values(data.potentials).forEach(p => { if(selectedArr.every(t => p.tags.includes(t))) matches.push({type:'잠재력', name:p.Name, tags:p.tags}); });
-
-			if(matches.length > 0 || selectedTags.size === 0) {
-			charCount++;
-			charHtml += `
-			<div class="char-item">
-				<button class="toggle-btn" onclick="toggleDetail(this)">
-					<span>${data.Name}</span>
-					<span class="text-slate-300 text-xs font-normal font-mono">ID: ${id}</span>
-				</button>
-				<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
-					${matches.map(m => `
-					<div class="p-3 bg-indigo-50/40 rounded-lg text-sm border border-indigo-50">
-						<div class="flex items-center gap-2 mb-2">
-							<span class="bg-indigo-500 text-white text-[11px] px-1.5 py-0.5 rounded shadow-sm">${m.type}</span>
-							<strong class="text-indigo-900">${m.name}</strong>
-						</div>
-						<div class="flex flex-wrap gap-1.5 mt-1">
-							${m.tags.map(t => `<span class="text-[11px] bg-white text-indigo-700 border border-indigo-100 px-2 py-0.5 rounded-md">${t}</span>`).join('')}
-						</div>
+				if(matches.length > 0 || selectedTags.size === 0) {
+				charCount++;
+				charHtml += `<div class="char-item">
+					<button class="toggle-btn" onclick="toggleDetail(this)">
+						<span>${data.Name}</span>
+					</button>
+					<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
+						${matches.map(m => `<div class="p-2 bg-indigo-50 rounded text-sm">
+							<strong>${m.name}</strong>
+							<div class="flex flex-wrap gap-1 mt-1">
+								${m.tags.map(t => `<span class="bg-white border px-1 rounded">${t}</span>`).join('')}
+							</div>
+						</div>`).join('')}
 					</div>
-					`).join('')}
-				</div>
-			</div>`;
-			}
-			});
+				</div>`;
+				}
+				});
 
-			// --- 레코드 필터링 ---
-			let recHtml = '';
-			let recCount = 0;
-			Object.entries(db.Records).forEach(([id, data]) => {
-			let matches = [];
-			if(selectedArr.every(t => data.main_skill.includes(t))) matches.push({type:'메인 스킬', tags:data.main_skill});
-			Object.entries(data.sub_skills).forEach(([idx, tags]) => { if(selectedArr.every(t => tags.includes(t))) matches.push({type:`보조 스킬 ${idx}`, tags:tags}); });
+				let recHtml = '', recCount = 0;
+				Object.entries(db.Records).forEach(([id, data]) => {
+				let matches = [];
+				if(selectedArr.every(t => data.main_skill.includes(t))) matches.push({type:'메인', tags:data.main_skill});
+				Object.entries(data.sub_skills).forEach(([idx, item]) => { if(selectedArr.every(t => item.tags.includes(t))) matches.push({type:`보조 ${idx}`, tags:item.tags}); });
 
-			if(matches.length > 0 || selectedTags.size === 0) {
-			recCount++;
-			recHtml += `
-			<div class="rec-item">
-				<button class="toggle-btn" onclick="toggleDetail(this)">
-					<span>${data.Name}</span>
-					<span class="text-slate-300 text-xs font-normal font-mono">ID: ${id}</span>
-				</button>
-				<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
-					${matches.map(m => `
-					<div class="p-3 bg-emerald-50/40 rounded-lg text-sm border border-emerald-50">
-						<div class="mb-2">
-							<span class="bg-emerald-500 text-white text-[11px] px-1.5 py-0.5 rounded shadow-sm">${m.type}</span>
-						</div>
-						<div class="flex flex-wrap gap-1.5 mt-1">
-							${m.tags.map(t => `<span class="text-[11px] bg-white text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-md">${t}</span>`).join('')}
-						</div>
+				if(matches.length > 0 || selectedTags.size === 0) {
+				recCount++;
+				recHtml += `<div class="rec-item">
+					<button class="toggle-btn" onclick="toggleDetail(this)">
+						<span>${data.Name}</span>
+					</button>
+					<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
+						${matches.map(m => `<div class="p-2 bg-emerald-50 rounded text-sm">
+							<strong>${m.type}</strong>
+							<div class="flex flex-wrap gap-1 mt-1">
+								${m.tags.map(t => `<span class="bg-white border px-1 rounded">${t}</span>`).join('')}
+							</div>
+						</div>`).join('')}
 					</div>
-					`).join('')}
-				</div>
-			</div>`;
-			}
-			});
+				</div>`;
+				}
+				});
 
-			charContainer.innerHTML = charHtml || '<div class="bg-slate-100/50 rounded-xl p-10 text-center">
-				<p class="text-slate-400">조건에 맞는 캐릭터가 없습니다.</p>
-			</div>';
-			recContainer.innerHTML = recHtml || '<div class="bg-slate-100/50 rounded-xl p-10 text-center">
-				<p class="text-slate-400">조건에 맞는 레코드가 없습니다.</p>
-			</div>';
-			document.getElementById('char-count').innerText = charCount;
-			document.getElementById('rec-count').innerText = recCount;
-			}
+				charContainer.innerHTML = charHtml;
+				recContainer.innerHTML = recHtml;
+				document.getElementById('char-count').innerText = charCount;
+				document.getElementById('rec-count').innerText = recCount;
+				}
 
-			// 토글 버튼 제어 (ID 기반에서 상대 위치 기반으로 변경하여 안정성 향상)
-			function toggleDetail(btnElement) {
-			const panel = btnElement.nextElementSibling;
-			const isActive = panel.classList.contains('active');
+				function toggleDetail(el) {
+				el.classList.toggle('active');
+				el.nextElementSibling.classList.toggle('active');
+				}
 
-			if(isActive) {
-			panel.classList.remove('active');
-			btnElement.classList.remove('active');
-			} else {
-			panel.classList.add('active');
-			btnElement.classList.add('active');
-			}
-			}
-
-			init();
-		</script>
+				init();
+			</script>
 	</body>
 </html>
