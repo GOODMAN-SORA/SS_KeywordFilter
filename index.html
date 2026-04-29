@@ -3,68 +3,60 @@
 	<head>
 		<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>스소 데이터 키워드 필터</title>
+				<title>스소 키워드 필터 (v2)</title>
 				<script src="https://cdn.tailwindcss.com"></script>
 				<style>
 					@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
 					body { font-family: 'Noto+Sans+KR', sans-serif; }
-					.tag-btn.active { @apply bg-indigo-600 text-white border-indigo-600 shadow-md; }
-					.result-card { transition: transform 0.2s, shadow 0.2s; }
-					.result-card:hover { transform: translateY(-2px); }
+					.selected-tag { @apply bg-indigo-600 text-white px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-rose-500 flex items-center gap-1 transition-all; }
+					.toggle-btn { @apply w-full text-left px-5 py-4 rounded-xl border border-slate-100 bg-white shadow-sm font-bold flex justify-between items-center transition-all hover:border-indigo-300 active:scale-[0.98]; }
+					.toggle-btn.active { @apply border-indigo-500 bg-indigo-50 text-indigo-900 shadow-md ring-2 ring-indigo-200 ring-offset-2; }
+					.detail-panel { display: none; }
+					.detail-panel.active { display: block; }
 				</style>
 			</head>
 	<body class="bg-slate-50 text-slate-900 min-h-screen">
 
-		<div class="container mx-auto px-4 py-10 max-w-6xl">
+		<div class="container mx-auto px-4 py-10 max-w-5xl">
 			<header class="mb-12 text-center">
-				<h1 class="text-4xl font-extrabold text-indigo-900 mb-3 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-					🔍 스소 데이터 키워드 검색기
-				</h1>
-				<p class="text-slate-500 text-lg">보유한 태그를 선택하여 캐릭터와 레코드 조합을 확인하세요.</p>
+				<h1 class="text-4xl font-extrabold text-indigo-900 mb-3">🔍 스소 데이터 키워드 필터</h1>
+				<p class="text-slate-500">필요한 태그를 검색하고 캐릭터와 레코드를 확인하세요.</p>
 			</header>
 
-			<section class="bg-white p-8 rounded-2xl shadow-xl shadow-slate-200/60 mb-10 border border-slate-100">
-				<div class="flex justify-between items-end mb-6">
-					<div>
-						<h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-							<span class="w-2 h-6 bg-indigo-500 rounded-full"></span>
-							필터 태그 선택
-						</h2>
-						<p class="text-sm text-slate-400 mt-1">* 다중 선택 시 모든 태그를 포함(AND)한 결과가 표시됩니다.</p>
+			<section class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 mb-10">
+				<div class="relative mb-6">
+					<label class="block text-sm font-bold text-slate-700 mb-2">태그 검색</label>
+					<input type="text" id="tag-input" placeholder="태그 이름을 입력하세요 (예: 불 속성, 치명타...)"
+						class="w-full px-5 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+
+						<ul id="tag-suggestions" class="absolute z-50 w-full bg-white border border-slate-200 rounded-xl mt-1 shadow-2xl max-h-60 overflow-y-auto hidden">
+						</ul>
 					</div>
-					<button onclick="resetFilters()" class="px-4 py-2 text-sm font-medium text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
-						초기화
-					</button>
-				</div>
-				<div id="tag-container" class="flex flex-wrap gap-2.5">
-					<div class="animate-pulse flex space-x-4">
-						<div class="h-8 bg-slate-200 rounded-full w-24"></div>
-						<div class="h-8 bg-slate-200 rounded-full w-20"></div>
-						<div class="h-8 bg-slate-200 rounded-full w-28"></div>
+
+				<div class="flex justify-between items-end">
+					<div id="selected-tags-container" class="flex flex-wrap gap-2">
+						<span class="text-slate-400 italic text-sm">선택된 태그가 없습니다.</span>
 					</div>
+					<button onclick="resetFilters()" class="text-sm font-medium text-rose-500 hover:underline shrink-0 ml-4">초기화</button>
 				</div>
 			</section>
 
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-				<div class="space-y-6">
-					<h2 class="text-2xl font-bold text-indigo-900 flex items-center justify-between border-b pb-3">
-						<span>
-							👤 캐릭터 <small class="text-slate-400 font-normal ml-2" id="char-count">0</small>
-						</span>
+				<div class="space-y-4">
+					<h2 class="text-2xl font-bold text-indigo-900 pb-2 border-b flex justify-between">
+						<span>👤 캐릭터</span>
+						<span id="char-count" class="text-slate-300">0</span>
 					</h2>
-					<div id="character-results" class="grid grid-cols-1 gap-4">
-					</div>
+					<div id="character-list" class="space-y-3"></div>
 				</div>
 
-				<div class="space-y-6">
-					<h2 class="text-2xl font-bold text-emerald-900 flex items-center justify-between border-b pb-3">
-						<span>
-							💿 레코드 <small class="text-slate-400 font-normal ml-2" id="rec-count">0</small>
-						</span>
+				<div class="space-y-4">
+					<h2 class="text-2xl font-bold text-emerald-900 pb-2 border-b flex justify-between">
+						<span>💿 레코드</span>
+						<span id="rec-count" class="text-slate-300">0</span>
 					</h2>
-					<div id="record-results" class="grid grid-cols-1 gap-4">
-					</div>
+					<div id="record-list" class="space-y-3"></div>
 				</div>
 
 			</div>
@@ -72,106 +64,124 @@
 
 		<script>
 			let db = null;
+			let allUniqueTags = [];
 			let selectedTags = new Set();
+			let activeCharId = null;
+			let activeRecId = null;
 
-			async function loadData() {
+			async function init() {
 			try {
-			const response = await fetch('FilteredDB.json');
-			db = await response.json();
-			renderTags();
-			filterResults();
-			} catch (error) {
-			console.error("데이터 로드 실패:", error);
-			document.getElementById('tag-container').innerHTML =
-			`<p class="text-rose-500 font-bold">❌ 데이터를 불러오거나 처리하는 데 실패했습니다. (콘솔 창 확인)</p>`;
+			const res = await fetch('FilteredDB.json');
+			db = await res.json();
+
+			// 유니크 태그 목록 추출
+			const tagSet = new Set();
+			Object.values(db.Characters).forEach(c => {
+			Object.values(c.skills).forEach(s => s.tags.forEach(t => tagSet.add(t)));
+			Object.values(c.potentials).forEach(p => p.tags.forEach(t => tagSet.add(t)));
+			});
+			Object.values(db.Records).forEach(r => {
+			r.main_skill.forEach(t => tagSet.add(t));
+			Object.values(r.sub_skills).forEach(tags => tags.forEach(t => tagSet.add(t)));
+			});
+			allUniqueTags = Array.from(tagSet).sort();
+
+			setupSearch();
+			filterAndRender();
+			} catch(e) {
+			console.error(e);
 			}
 			}
 
-			// [에러 수정 부분]: 변경된 JSON 구조(itemData.tags)에 맞게 태그를 긁어오도록 수정
-			function renderTags() {
-			const allTags = new Set();
+			// 검색 및 드롭다운 설정
+			function setupSearch() {
+			const input = document.getElementById('tag-input');
+			const suggestionBox = document.getElementById('tag-suggestions');
 
-			Object.values(db.Characters).forEach(char => {
-			Object.values(char.skills).forEach(itemData => {
-			if (itemData.tags) itemData.tags.forEach(t => allTags.add(t));
-			});
-			Object.values(char.potentials).forEach(itemData => {
-			if (itemData.tags) itemData.tags.forEach(t => allTags.add(t));
-			});
-			});
+			input.oninput = (e) => {
+			const val = e.target.value.trim().toLowerCase();
+			if(!val) { suggestionBox.classList.add('hidden'); return; }
 
-			Object.values(db.Records).forEach(rec => {
-			if (rec.main_skill) rec.main_skill.forEach(t => allTags.add(t));
-			Object.values(rec.sub_skills).forEach(tags => tags.forEach(t => allTags.add(t)));
-			});
-
-			const container = document.getElementById('tag-container');
-			container.innerHTML = '';
-
-			Array.from(allTags).sort().forEach(tag => {
-			const btn = document.createElement('button');
-			btn.textContent = tag;
-			btn.className = `tag-btn px-4 py-1.5 rounded-xl border border-slate-200 text-sm font-medium bg-slate-50 text-slate-600 hover:border-indigo-400 hover:text-indigo-600 transition-all`;
-			btn.onclick = () => toggleTag(tag, btn);
-			container.appendChild(btn);
-			});
-			}
-
-			function toggleTag(tag, btn) {
-			if (selectedTags.has(tag)) {
-			selectedTags.delete(tag);
-			btn.classList.remove('active');
+			const filtered = allUniqueTags.filter(t => t.toLowerCase().includes(val) && !selectedTags.has(t));
+			if(filtered.length > 0) {
+			suggestionBox.innerHTML = filtered.map(t => `<li class="px-5 py-3 hover:bg-indigo-50 cursor-pointer border-b last:border-0 border-slate-50 font-medium" onclick="addTag('${t}')">${t}</li>`).join('');
+			suggestionBox.classList.remove('hidden');
 			} else {
-			selectedTags.add(tag);
-			btn.classList.add('active');
+			suggestionBox.classList.add('hidden');
 			}
-			filterResults();
+			};
+
+			// 외부 클릭 시 드롭다운 닫기
+			document.addEventListener('click', (e) => {
+			if(!e.target.closest('#tag-input')) suggestionBox.classList.add('hidden');
+			});
+			}
+
+			function addTag(tag) {
+			selectedTags.add(tag);
+			document.getElementById('tag-input').value = '';
+			document.getElementById('tag-suggestions').classList.add('hidden');
+			renderSelectedTags();
+			filterAndRender();
+			}
+
+			function removeTag(tag) {
+			selectedTags.delete(tag);
+			renderSelectedTags();
+			filterAndRender();
+			}
+
+			function renderSelectedTags() {
+			const container = document.getElementById('selected-tags-container');
+			if(selectedTags.size === 0) {
+			container.innerHTML = '<span class="text-slate-400 italic text-sm">선택된 태그가 없습니다.</span>';
+			return;
+			}
+			container.innerHTML = Array.from(selectedTags).map(t => `<span class="selected-tag" onclick="removeTag('${t}')">
+				${t} <span>&times;</span>
+			</span>`).join('');
 			}
 
 			function resetFilters() {
 			selectedTags.clear();
-			document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
-			filterResults();
+			renderSelectedTags();
+			filterAndRender();
 			}
 
-			function filterResults() {
-			const charContainer = document.getElementById('character-results');
-			const recContainer = document.getElementById('record-results');
+			function filterAndRender() {
+			const charContainer = document.getElementById('character-list');
+			const recContainer = document.getElementById('record-list');
 			const selectedArr = Array.from(selectedTags);
 
-			// --- 캐릭터 렌더링 ---
+			// '스킬 피해' 로직: '스킬 피해' 선택 시 '메인 스킬' 또는 '지원 스킬'도 포함하여 체크
+			// 하지만 요청하신 내용은 '스킬 피해 선택 시 해당 태그가 포함된 것을 필터링'하는 것이므로,
+			// 이미 파이썬에서 스킬 피해 태그를 메인/지원에 넣어두었으므로 추가 로직 없이 AND 연산만으로 작동합니다.
+
+			// --- 캐릭터 필터링 ---
 			let charHtml = '';
-			let charMatchedCount = 0;
-
+			let charCount = 0;
 			Object.entries(db.Characters).forEach(([id, data]) => {
-			let matchedItems = [];
+			let matches = [];
+			Object.values(data.skills).forEach(s => { if(selectedArr.every(t => s.tags.includes(t))) matches.push({type:'스킬', name:s.Name, tags:s.tags}); });
+			Object.values(data.potentials).forEach(p => { if(selectedArr.every(t => p.tags.includes(t))) matches.push({type:'잠재력', name:p.Name, tags:p.tags}); });
 
-			Object.entries(data.skills).forEach(([code, itemData]) => {
-			if (selectedArr.every(t => itemData.tags.includes(t))) {
-			matchedItems.push({ type: '스킬', name: itemData.Name, tags: itemData.tags });
-			}
-			});
-
-			Object.entries(data.potentials).forEach(([code, itemData]) => {
-			if (selectedArr.every(t => itemData.tags.includes(t))) {
-			matchedItems.push({ type: '잠재력', name: itemData.Name, tags: itemData.tags });
-			}
-			});
-
-			if (matchedItems.length > 0 || selectedArr.length === 0) {
-			charMatchedCount++;
+			if(matches.length > 0 || selectedTags.size === 0) {
+			charCount++;
 			charHtml += `
-			<div class="result-card bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-indigo-500">
-				<div class="font-bold text-xl text-slate-800 mb-3">${data.Name}</div>
-				<div class="space-y-2">
-					${matchedItems.map(item => `
-					<div class="text-sm bg-indigo-50/50 p-2.5 rounded-lg border border-indigo-100/50">
+			<div class="char-item">
+				<button class="toggle-btn" onclick="toggleDetail('char-${id}')">
+					<span>${data.Name}</span>
+					<span class="text-slate-300 text-xs font-normal">ID: ${id}</span>
+				</button>
+				<div id="char-${id}" class="detail-panel bg-white p-4 border-x border-b rounded-b-xl space-y-2">
+					${matches.map(m => `
+					<div class="p-2 bg-indigo-50/50 rounded-lg text-sm">
 						<div class="flex items-center gap-2 mb-1">
-							<span class="px-1.5 py-0.5 bg-indigo-500 text-white text-[10px] font-bold rounded uppercase">${item.type}</span>
-							<span class="font-bold text-indigo-900">${item.name}</span>
+							<span class="bg-indigo-500 text-white text-[10px] px-1 rounded font-bold">${m.type}</span>
+							<strong>${m.name}</strong>
 						</div>
 						<div class="flex flex-wrap gap-1">
-							${item.tags.map(t => `<span class="text-[10px] bg-white text-indigo-600 border border-indigo-100 px-1.5 py-0.5 rounded-md font-medium">${t}</span>`).join('')}
+							${m.tags.map(t => `<span class="text-[10px] bg-white border px-1 rounded">${t}</span>`).join('')}
 						</div>
 					</div>
 					`).join('')}
@@ -180,34 +190,30 @@
 			}
 			});
 
-			// --- 레코드 렌더링 ---
+			// --- 레코드 필터링 ---
 			let recHtml = '';
-			let recMatchedCount = 0;
-
+			let recCount = 0;
 			Object.entries(db.Records).forEach(([id, data]) => {
-			let matchedItems = [];
-			if (selectedArr.every(t => data.main_skill.includes(t))) {
-			matchedItems.push({ type: '메인 스킬', tags: data.main_skill });
-			}
-			Object.entries(data.sub_skills).forEach(([idx, tags]) => {
-			if (selectedArr.every(t => tags.includes(t))) {
-			matchedItems.push({ type: `보조 스킬 ${idx}`, tags });
-			}
-			});
+			let matches = [];
+			if(selectedArr.every(t => data.main_skill.includes(t))) matches.push({type:'메인', tags:data.main_skill});
+			Object.entries(data.sub_skills).forEach(([idx, tags]) => { if(selectedArr.every(t => tags.includes(t))) matches.push({type:`보조 ${idx}`, tags:tags}); });
 
-			if (matchedItems.length > 0 || selectedArr.length === 0) {
-			recMatchedCount++;
+			if(matches.length > 0 || selectedTags.size === 0) {
+			recCount++;
 			recHtml += `
-			<div class="result-card bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-emerald-500">
-				<div class="font-bold text-xl text-slate-800 mb-3">${data.Name}</div>
-				<div class="space-y-2">
-					${matchedItems.map(item => `
-					<div class="text-sm bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100/50">
-						<div class="flex items-center gap-2 mb-1">
-							<span class="px-1.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded uppercase">${item.type}</span>
+			<div class="rec-item">
+				<button class="toggle-btn" onclick="toggleDetail('rec-${id}')">
+					<span>${data.Name}</span>
+					<span class="text-slate-300 text-xs font-normal">ID: ${id}</span>
+				</button>
+				<div id="rec-${id}" class="detail-panel bg-white p-4 border-x border-b rounded-b-xl space-y-2">
+					${matches.map(m => `
+					<div class="p-2 bg-emerald-50/50 rounded-lg text-sm">
+						<div class="mb-1">
+							<span class="bg-emerald-500 text-white text-[10px] px-1 rounded font-bold">${m.type}</span>
 						</div>
 						<div class="flex flex-wrap gap-1">
-							${item.tags.map(t => `<span class="text-[10px] bg-white text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-md font-medium">${t}</span>`).join('')}
+							${m.tags.map(t => `<span class="text-[10px] bg-white border px-1 rounded">${t}</span>`).join('')}
 						</div>
 					</div>
 					`).join('')}
@@ -216,15 +222,32 @@
 			}
 			});
 
-			charContainer.innerHTML = charHtml || '<p class="text-slate-400 italic py-10 text-center">조건에 맞는 캐릭터가 없습니다.</p>';
-			recContainer.innerHTML = recHtml || '<p class="text-slate-400 italic py-10 text-center">조건에 맞는 레코드가 없습니다.</p>';
-
-			document.getElementById('char-count').textContent = charMatchedCount;
-			document.getElementById('rec-count').textContent = recMatchedCount;
+			charContainer.innerHTML = charHtml || '<p class="text-center text-slate-400 py-10">검색 결과가 없습니다.</p>';
+			recContainer.innerHTML = recHtml || '<p class="text-center text-slate-400 py-10">검색 결과가 없습니다.</p>';
+			document.getElementById('char-count').innerText = charCount;
+			document.getElementById('rec-count').innerText = recCount;
 			}
 
-			// 앱 시작
-			loadData();
+			function toggleDetail(panelId) {
+			const panel = document.getElementById(panelId);
+			const btn = panel.previousElementSibling;
+
+			const isActive = panel.classList.contains('active');
+
+			// 다른 패널 닫고 싶지 않다면 이 줄들은 지워도 됩니다. (현재는 하나만 열리는 구조)
+			// document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('active'));
+			// document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+
+			if(isActive) {
+			panel.classList.remove('active');
+			btn.classList.remove('active');
+			} else {
+			panel.classList.add('active');
+			btn.classList.add('active');
+			}
+			}
+
+			init();
 		</script>
 	</body>
 </html>
