@@ -57,22 +57,33 @@
 			async function init() {
 			try {
 			const res = await fetch('FilteredDB.json');
+			if (!res.ok) throw new Error(`데이터 파일 로드 실패: ${res.status}`);
+
 			db = await res.json();
 
+			// 안전하게 데이터를 읽어오기 위해 || {} 추가
+			const characters = db.Characters || {};
+			const records = db.Records || {};
+
 			const tagSet = new Set();
-			Object.values(db.Characters).forEach(c => {
-			Object.values(c.skills).forEach(s => s.tags.forEach(t => tagSet.add(t)));
-			Object.values(c.potentials).forEach(p => p.tags.forEach(t => tagSet.add(t)));
+
+			// 데이터 존재 여부를 안전하게 확인하며 태그 추출
+			Object.values(characters).forEach(c => {
+			if (c.skills) Object.values(c.skills).forEach(s => s.tags?.forEach(t => tagSet.add(t)));
+			if (c.potentials) Object.values(c.potentials).forEach(p => p.tags?.forEach(t => tagSet.add(t)));
 			});
-			Object.values(db.Records).forEach(r => {
-			r.main_skill.forEach(t => tagSet.add(t));
-			Object.values(r.sub_skills).forEach(item => item.tags.forEach(t => tagSet.add(t)));
+			Object.values(records).forEach(r => {
+			if (r.main_skill) r.main_skill.forEach(t => tagSet.add(t));
+			Object.values(r.sub_skills).forEach(item => item.tags?.forEach(t => tagSet.add(t)));
 			});
+
 			allUniqueTags = Array.from(tagSet).sort((a, b) => a.localeCompare(b, 'ko'));
 
 			setupSearch();
 			filterAndRender();
-			} catch(e) { console.error("초기화 에러:", e); }
+			} catch(e) {
+			console.error("초기화 에러:", e);
+			}
 			}
 
 			function makeChosungRegex(searchQuery) {
@@ -123,19 +134,29 @@
 			function resetFilters() { selectedTags.clear(); renderSelectedTags(); filterAndRender(); }
 
 			function filterAndRender() {
-			const selectedArr = Array.from(selectedTags);
+			if (!db) return;
 
-			// 캐릭터
+			const charContainer = document.getElementById('character-list');
+			const recContainer = document.getElementById('record-list');
+			const selectedArr = Array.from(selectedTags);
+			const characters = db.Characters || {};
+			const records = db.Records || {};
+
 			let charHtml = '', charCount = 0;
-			Object.entries(db.Characters).forEach(([id, data]) => {
-			let matches = [...Object.values(data.skills), ...Object.values(data.potentials)].filter(item => selectedArr.every(t => item.tags.includes(t)));
+			Object.entries(characters).forEach(([id, data]) => {
+			let matches = [];
+			if(data.skills) Object.values(data.skills).forEach(s => { if(selectedArr.every(t => s.tags.includes(t))) matches.push({type:'스킬', name:s.Name, tags:s.tags}); });
+			if(data.potentials) Object.values(data.potentials).forEach(p => { if(selectedArr.every(t => p.tags.includes(t))) matches.push({type:'잠재력', name:p.Name, tags:p.tags}); });
+
 			if(matches.length > 0 || selectedTags.size === 0) {
 			charCount++;
 			charHtml += `<div class="char-item">
-				<button class="toggle-btn" onclick="toggleDetail(this)">${data.Name}</button>
+				<button class="toggle-btn" onclick="toggleDetail(this)">
+					<span>${data.Name}</span>
+				</button>
 				<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
 					${matches.map(m => `<div class="p-2 bg-indigo-50 rounded text-sm font-bold">
-						${m.Name}<div class="font-normal flex flex-wrap gap-1">
+						${m.name}<div class="font-normal flex flex-wrap gap-1">
 							${m.tags.map(t => `<span class="bg-white border px-1 rounded font-normal">${t}</span>`).join('')}
 						</div>
 					</div>`).join('')}
@@ -144,12 +165,11 @@
 			}
 			});
 
-			// 레코드
 			let recHtml = '', recCount = 0;
-			Object.entries(db.Records).forEach(([id, data]) => {
+			Object.entries(records).forEach(([id, data]) => {
 			let matches = [];
-			if(selectedArr.every(t => data.main_skill.includes(t))) matches.push({Name: "메인 스킬", tags: data.main_skill});
-			Object.entries(data.sub_skills).forEach(([idx, item]) => { if(selectedArr.every(t => item.tags.includes(t))) matches.push({Name: `보조 스킬 ${idx}`, tags: item.tags}); });
+			if(data.main_skill && selectedArr.every(t => data.main_skill.includes(t))) matches.push({type:'메인', tags:data.main_skill});
+			if(data.sub_skills) Object.entries(data.sub_skills).forEach(([idx, item]) => { if(selectedArr.every(t => item.tags.includes(t))) matches.push({type:`보조 ${idx}`, tags:item.tags}); });
 
 			if(matches.length > 0 || selectedTags.size === 0) {
 			recCount++;
@@ -157,7 +177,7 @@
 				<button class="toggle-btn" onclick="toggleDetail(this)">${data.Name}</button>
 				<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
 					${matches.map(m => `<div class="p-2 bg-emerald-50 rounded text-sm font-bold">
-						${m.Name}<div class="font-normal flex flex-wrap gap-1">
+						${m.type}<div class="font-normal flex flex-wrap gap-1">
 							${m.tags.map(t => `<span class="bg-white border px-1 rounded font-normal">${t}</span>`).join('')}
 						</div>
 					</div>`).join('')}
@@ -166,8 +186,8 @@
 			}
 			});
 
-			document.getElementById('character-list').innerHTML = charHtml;
-			document.getElementById('record-list').innerHTML = recHtml;
+			charContainer.innerHTML = charHtml;
+			recContainer.innerHTML = recHtml;
 			document.getElementById('char-count').innerText = charCount;
 			document.getElementById('rec-count').innerText = recCount;
 			}
