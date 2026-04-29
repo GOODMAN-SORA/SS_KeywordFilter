@@ -1,180 +1,158 @@
 <!DOCTYPE html>
 <html lang="ko">
-	<head>
-		<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>스소 데이터 키워드 필터</title>
-				<script src="https://cdn.tailwindcss.com"></script>
-				<style>
-					@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
-					body { font-family: 'Noto+Sans+KR', sans-serif; }
-					.selected-tag { @apply bg-indigo-600 text-white px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-rose-500 flex items-center gap-1 transition-all shadow-sm; }
-					.toggle-btn { @apply w-full text-left px-5 py-4 rounded-xl border border-slate-100 bg-white shadow-sm font-bold flex justify-between items-center transition-all hover:border-indigo-300 active:scale-[0.98]; }
-					.toggle-btn.active { @apply border-indigo-500 bg-indigo-50 text-indigo-900 shadow-md ring-2 ring-indigo-200 ring-offset-2; }
-					.detail-panel { display: none; }
-					.detail-panel.active { display: block; }
-					::-webkit-scrollbar { width: 6px; }
-					::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-				</style>
-			</head>
-	<body class="bg-slate-50 text-slate-900 min-h-screen pb-20">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스소 데이터 키워드 필터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
+        body { font-family: 'Noto+Sans+KR', sans-serif; }
+        .selected-tag { @apply bg-indigo-600 text-white px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-rose-500 flex items-center gap-1 transition-all shadow-sm; }
+        .toggle-btn { @apply w-full text-left px-5 py-4 rounded-xl border border-slate-100 bg-white shadow-sm font-bold flex justify-between items-center transition-all hover:border-indigo-300 active:scale-[0.98]; }
+        .toggle-btn.active { @apply border-indigo-500 bg-indigo-50 text-indigo-900 shadow-md ring-2 ring-indigo-200 ring-offset-2; }
+        .detail-panel { display: none; }
+        .detail-panel.active { display: block; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen pb-20">
 
-		<div class="container mx-auto px-4 py-10 max-w-5xl">
-			<header class="mb-12 text-center">
-				<h1 class="text-4xl font-extrabold text-indigo-900 mb-3">🔍 스소 데이터 키워드 필터</h1>
-			</header>
+    <div class="container mx-auto px-4 py-10 max-w-5xl">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-extrabold text-indigo-900 mb-3">🔍 스소 데이터 키워드 필터</h1>
+        </header>
 
-			<section class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 mb-10 relative z-20">
-				<div class="relative mb-6">
-					<input type="text" id="tag-input" placeholder="검색할 태그나 초성을 입력하세요..." autocomplete="off"
-						class="w-full px-5 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 shadow-inner">
-						<ul id="tag-suggestions" class="absolute z-50 w-full bg-white border border-slate-200 rounded-xl mt-2 shadow-2xl max-h-80 overflow-y-auto hidden divide-y divide-slate-50"></ul>
-					</div>
-				<div id="selected-tags-container" class="flex flex-wrap gap-2"></div>
-			</section>
+        <section class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 mb-10 relative z-20">
+            <div class="relative mb-6">
+                <input type="text" id="tag-input" placeholder="검색할 태그나 초성을 입력하세요..." autocomplete="off"
+                    class="w-full px-5 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 shadow-inner">
+                <ul id="tag-suggestions" class="absolute z-50 w-full bg-white border border-slate-200 rounded-xl mt-2 shadow-2xl max-h-80 overflow-y-auto hidden divide-y divide-slate-50"></ul>
+            </div>
+            <div id="selected-tags-container" class="flex flex-wrap gap-2"></div>
+        </section>
 
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-				<div>
-					<h2 class="text-2xl font-bold text-indigo-900 pb-2 border-b-2 border-indigo-100 mb-4">
-						👤 캐릭터 <span id="char-count" class="text-indigo-600">0</span>
-					</h2>
-					<div id="character-list" class="space-y-3"></div>
-				</div>
-				<div>
-					<h2 class="text-2xl font-bold text-emerald-900 pb-2 border-b-2 border-emerald-100 mb-4">
-						💿 레코드 <span id="rec-count" class="text-emerald-600">0</span>
-					</h2>
-					<div id="record-list" class="space-y-3"></div>
-				</div>
-			</div>
-		</div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+                <h2 class="text-2xl font-bold text-indigo-900 pb-2 border-b-2 border-indigo-100 mb-4">👤 캐릭터 <span id="char-count" class="text-indigo-600">0</span></h2>
+                <div id="character-list" class="space-y-3"></div>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-emerald-900 pb-2 border-b-2 border-emerald-100 mb-4">💿 레코드 <span id="rec-count" class="text-emerald-600">0</span></h2>
+                <div id="record-list" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
 
-		<script>
-			let db = null;
-			let allUniqueTags = [];
-			let selectedTags = new Set();
+    <script>
+        let db = null;
+        let allUniqueTags = [];
+        let selectedTags = new Set();
 
-			async function init() {
-			try {
-			const res = await fetch('FilteredDB.json');
-			db = await res.json();
+        async function init() {
+            try {
+                const res = await fetch('FilteredDB.json');
+                db = await res.json();
+                
+                const tagSet = new Set();
+                Object.values(db.Characters).forEach(c => {
+                    Object.values(c.skills).forEach(s => s.tags.forEach(t => tagSet.add(t)));
+                    Object.values(c.potentials).forEach(p => p.tags.forEach(t => tagSet.add(t)));
+                });
+                Object.values(db.Records).forEach(r => {
+                    r.main_skill.forEach(t => tagSet.add(t));
+                    Object.values(r.sub_skills).forEach(item => item.tags.forEach(t => tagSet.add(t)));
+                });
+                allUniqueTags = Array.from(tagSet).sort((a, b) => a.localeCompare(b, 'ko'));
+                
+                setupSearch();
+                filterAndRender();
+            } catch(e) { console.error("초기화 에러:", e); }
+        }
 
-			const tagSet = new Set();
-			Object.values(db.Characters).forEach(c => {
-			Object.values(c.skills).forEach(s => s.tags.forEach(t => tagSet.add(t)));
-			Object.values(c.potentials).forEach(p => p.tags.forEach(t => tagSet.add(t)));
-			});
-			Object.values(db.Records).forEach(r => {
-			r.main_skill.forEach(t => tagSet.add(t));
-			Object.values(r.sub_skills).forEach(item => item.tags.forEach(t => tagSet.add(t)));
-			});
-			allUniqueTags = Array.from(tagSet).sort((a, b) => a.localeCompare(b, 'ko'));
+        function makeChosungRegex(searchQuery) {
+            const CHOSUNG = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+            const HANGUL_START = 44032;
+            let pattern = '';
+            for (let char of searchQuery) {
+                let idx = CHOSUNG.indexOf(char);
+                if (idx > -1) {
+                    let b = HANGUL_START + (idx * 588);
+                    pattern += `[${char}\\u${b.toString(16).padStart(4, '0')}-\\u${(b + 587).toString(16).padStart(4, '0')}]`;
+                } else pattern += char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                pattern += '\\s*';
+            }
+            return new RegExp(pattern, 'i');
+        }
 
-			setupSearch();
-			filterAndRender();
-			} catch(e) { console.error("초기화 에러:", e); }
-			}
+        function setupSearch() {
+            const input = document.getElementById('tag-input');
+            const box = document.getElementById('tag-suggestions');
+            input.oninput = (e) => {
+                const val = e.target.value.trim();
+                const filtered = val ? allUniqueTags.filter(t => !selectedTags.has(t) && makeChosungRegex(val).test(t)) : allUniqueTags.filter(t => !selectedTags.has(t));
+                box.innerHTML = filtered.map(t => `<li class="px-5 py-3 hover:bg-indigo-50 cursor-pointer" onmousedown="addTag('${t}')">${t}</li>`).join('');
+                box.classList.toggle('hidden', filtered.length === 0);
+            };
+        }
 
-			function makeChosungRegex(searchQuery) {
-			const CHOSUNG = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
-			const HANGUL_START = 44032;
-			let pattern = '';
-			for (let char of searchQuery) {
-			let idx = CHOSUNG.indexOf(char);
-			if (idx > -1) {
-			let b = HANGUL_START + (idx * 588);
-			pattern += `[${char}\\u${b.toString(16).padStart(4, '0')}-\\u${(b + 587).toString(16).padStart(4, '0')}]`;
-			} else pattern += char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-			pattern += '\\s*';
-			}
-			return new RegExp(pattern, 'i');
-			}
+        function addTag(tag) {
+            selectedTags.add(tag);
+            document.getElementById('tag-input').value = '';
+            document.getElementById('tag-suggestions').classList.add('hidden');
+            renderSelectedTags();
+            filterAndRender();
+        }
 
-			function setupSearch() {
-			const input = document.getElementById('tag-input');
-			const box = document.getElementById('tag-suggestions');
-			input.oninput = (e) => {
-			const val = e.target.value.trim();
-			const filtered = val ? allUniqueTags.filter(t => !selectedTags.has(t) && makeChosungRegex(val).test(t)) : allUniqueTags.filter(t => !selectedTags.has(t));
-			box.innerHTML = filtered.map(t => `<li class="px-5 py-3 hover:bg-indigo-50 cursor-pointer" onmousedown="addTag('${t}')">${t}</li>`).join('');
-			box.classList.toggle('hidden', filtered.length === 0);
-			};
-			}
+        function removeTag(tag) {
+            selectedTags.delete(tag);
+            renderSelectedTags();
+            filterAndRender();
+        }
 
-			function addTag(tag) {
-			selectedTags.add(tag);
-			document.getElementById('tag-input').value = '';
-			document.getElementById('tag-suggestions').classList.add('hidden');
-			renderSelectedTags();
-			filterAndRender();
-			}
+        function renderSelectedTags() {
+            const container = document.getElementById('selected-tags-container');
+            container.innerHTML = Array.from(selectedTags).map(t => `<span class="selected-tag" onclick="removeTag('${t}')">${t} &times;</span>`).join('') || '<span class="text-slate-400 italic text-sm">선택된 태그가 없습니다.</span>';
+        }
 
-			function removeTag(tag) {
-			selectedTags.delete(tag);
-			renderSelectedTags();
-			filterAndRender();
-			}
+        function resetFilters() { selectedTags.clear(); renderSelectedTags(); filterAndRender(); }
 
-			function renderSelectedTags() {
-			const container = document.getElementById('selected-tags-container');
-			container.innerHTML = Array.from(selectedTags).map(t => `<span class="selected-tag" onclick="removeTag('${t}')">${t} &times;</span>`).join('') || '<span class="text-slate-400 italic text-sm">선택된 태그가 없습니다.</span>';
-			}
+        function filterAndRender() {
+            const selectedArr = Array.from(selectedTags);
+            
+            // 캐릭터
+            let charHtml = '', charCount = 0;
+            Object.entries(db.Characters).forEach(([id, data]) => {
+                let matches = [...Object.values(data.skills), ...Object.values(data.potentials)].filter(item => selectedArr.every(t => item.tags.includes(t)));
+                if(matches.length > 0 || selectedTags.size === 0) {
+                    charCount++;
+                    charHtml += `<div class="char-item"><button class="toggle-btn" onclick="toggleDetail(this)">${data.Name}</button><div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">${matches.map(m => `<div class="p-2 bg-indigo-50 rounded text-sm font-bold">${m.Name}<div class="font-normal flex flex-wrap gap-1">${m.tags.map(t => `<span class="bg-white border px-1 rounded font-normal">${t}</span>`).join('')}</div></div>`).join('')}</div></div>`;
+                }
+            });
 
-			function resetFilters() { selectedTags.clear(); renderSelectedTags(); filterAndRender(); }
+            // 레코드
+            let recHtml = '', recCount = 0;
+            Object.entries(db.Records).forEach(([id, data]) => {
+                let matches = [];
+                if(selectedArr.every(t => data.main_skill.includes(t))) matches.push({Name: "메인 스킬", tags: data.main_skill});
+                Object.entries(data.sub_skills).forEach(([idx, item]) => { if(selectedArr.every(t => item.tags.includes(t))) matches.push({Name: `보조 스킬 ${idx}`, tags: item.tags}); });
+                
+                if(matches.length > 0 || selectedTags.size === 0) {
+                    recCount++;
+                    recHtml += `<div class="rec-item"><button class="toggle-btn" onclick="toggleDetail(this)">${data.Name}</button><div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">${matches.map(m => `<div class="p-2 bg-emerald-50 rounded text-sm font-bold">${m.Name}<div class="font-normal flex flex-wrap gap-1">${m.tags.map(t => `<span class="bg-white border px-1 rounded font-normal">${t}</span>`).join('')}</div></div>`).join('')}</div></div>`;
+                }
+            });
 
-			function filterAndRender() {
-			const selectedArr = Array.from(selectedTags);
+            document.getElementById('character-list').innerHTML = charHtml;
+            document.getElementById('record-list').innerHTML = recHtml;
+            document.getElementById('char-count').innerText = charCount;
+            document.getElementById('rec-count').innerText = recCount;
+        }
 
-			// 캐릭터
-			let charHtml = '', charCount = 0;
-			Object.entries(db.Characters).forEach(([id, data]) => {
-			let matches = [...Object.values(data.skills), ...Object.values(data.potentials)].filter(item => selectedArr.every(t => item.tags.includes(t)));
-			if(matches.length > 0 || selectedTags.size === 0) {
-			charCount++;
-			charHtml += `<div class="char-item">
-				<button class="toggle-btn" onclick="toggleDetail(this)">${data.Name}</button>
-				<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
-					${matches.map(m => `<div class="p-2 bg-indigo-50 rounded text-sm font-bold">
-						${m.Name}<div class="font-normal flex flex-wrap gap-1">
-							${m.tags.map(t => `<span class="bg-white border px-1 rounded font-normal">${t}</span>`).join('')}
-						</div>
-					</div>`).join('')}
-				</div>
-			</div>`;
-			}
-			});
+        function toggleDetail(el) { el.classList.toggle('active'); el.nextElementSibling.classList.toggle('active'); }
 
-			// 레코드
-			let recHtml = '', recCount = 0;
-			Object.entries(db.Records).forEach(([id, data]) => {
-			let matches = [];
-			if(selectedArr.every(t => data.main_skill.includes(t))) matches.push({Name: "메인 스킬", tags: data.main_skill});
-			Object.entries(data.sub_skills).forEach(([idx, item]) => { if(selectedArr.every(t => item.tags.includes(t))) matches.push({Name: `보조 스킬 ${idx}`, tags: item.tags}); });
-
-			if(matches.length > 0 || selectedTags.size === 0) {
-			recCount++;
-			recHtml += `<div class="rec-item">
-				<button class="toggle-btn" onclick="toggleDetail(this)">${data.Name}</button>
-				<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
-					${matches.map(m => `<div class="p-2 bg-emerald-50 rounded text-sm font-bold">
-						${m.Name}<div class="font-normal flex flex-wrap gap-1">
-							${m.tags.map(t => `<span class="bg-white border px-1 rounded font-normal">${t}</span>`).join('')}
-						</div>
-					</div>`).join('')}
-				</div>
-			</div>`;
-			}
-			});
-
-			document.getElementById('character-list').innerHTML = charHtml;
-			document.getElementById('record-list').innerHTML = recHtml;
-			document.getElementById('char-count').innerText = charCount;
-			document.getElementById('rec-count').innerText = recCount;
-			}
-
-			function toggleDetail(el) { el.classList.toggle('active'); el.nextElementSibling.classList.toggle('active'); }
-
-			init();
-		</script>
-	</body>
+        init();
+    </script>
+</body>
 </html>
