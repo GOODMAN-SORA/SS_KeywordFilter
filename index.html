@@ -3,31 +3,28 @@
 	<head>
 		<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>데이터베이스 검색</title>
+				<title>스소 키워드 필터링 시스템</title>
 				<script src="https://cdn.tailwindcss.com"></script>
 				<style>
 					@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
 					body { font-family: 'Noto+Sans+KR', sans-serif; }
-
 					.selected-tag { @apply bg-indigo-600 text-white px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-rose-500 flex items-center gap-1 transition-all shadow-sm; }
 					.toggle-btn { @apply w-full text-left px-5 py-4 rounded-xl border border-slate-100 bg-white shadow-sm font-bold flex justify-between items-center transition-all hover:border-indigo-300 active:scale-[0.98]; }
 					.toggle-btn.active { @apply border-indigo-500 bg-indigo-50 text-indigo-900 shadow-md ring-2 ring-indigo-200 ring-offset-2; }
 					.detail-panel { display: none; }
 					.detail-panel.active { display: block; }
-
 					::-webkit-scrollbar { width: 6px; }
 					::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
+					/* 스킬 하위 잠재력 들여쓰기 디자인 */
 					.related-potentials { @apply mt-2 ml-3 pl-3 border-l-2 border-indigo-200 space-y-2; }
 
-					/* 캐릭터 썸네일 그리드용 스타일 추가 */
+					/* 캐릭터 썸네일 그리드용 스타일 */
 					.char-grid {
 					display: grid;
-					grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-					gap: 5px;
-					margin-bottom: 10px;
+					grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+					gap: 15px;
 					}
-
 					.char-card {
 					display: flex;
 					flex-direction: column;
@@ -35,34 +32,23 @@
 					cursor: pointer;
 					transition: transform 0.2s;
 					}
-
-					.char-card:hover {
-					transform: scale(1.05);
-					}
-
+					.char-card:hover { transform: scale(1.05); }
 					.char-img-container {
 					position: relative;
-					width: 75px;
-					height: 75px;
-					border-radius: 7px;
+					width: 80px;
+					height: 80px;
+					border-radius: 12px;
 					overflow: hidden;
 					background-color: #f1f5f9;
 					box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 					border: 2px solid transparent;
 					transition: border-color 0.2s;
 					}
-
 					.char-card.active .char-img-container {
-					border-color: #6366f1; /* 선택 시 테두리 색상 */
+					border-color: #6366f1;
 					box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
 					}
-
-					.char-img {
-					width: 100%;
-					height: 100%;
-					object-fit: cover;
-					}
-
+					.char-img { width: 100%; height: 100%; object-fit: cover; }
 					.element-icon {
 					position: absolute;
 					top: 4px;
@@ -70,13 +56,12 @@
 					width: 24px;
 					height: 24px;
 					border-radius: 50%;
-					background-color: rgba(0,0,0,0.4); /* 약간의 배경을 주어 아이콘이 잘 보이게 함 */
+					background-color: rgba(0,0,0,0.4);
 					padding: 2px;
 					}
-
 					.char-name-label {
 					margin-top: 8px;
-					font-size: 14px;
+					font-size: 13px;
 					font-weight: bold;
 					text-align: center;
 					color: #334155;
@@ -106,23 +91,27 @@
 				</div>
 			</section>
 
-			<div class="grid grid-cols-1 gap-8 items-start">
+			<!-- PC 환경 기준 좌/우 2단 분할 레이아웃 유지 -->
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+
+				<!-- 좌측: 캐릭터 영역 -->
 				<div class="space-y-4">
 					<h2 class="text-2xl font-bold text-indigo-900 pb-2 border-b-2 border-indigo-100 flex justify-between">
 						<span>👤 캐릭터</span>
 						<span id="char-count" class="text-slate-300 font-mono">0</span>
 					</h2>
-					<!-- 캐릭터 목록 그리드 컨테이너 -->
+					<!-- [수정] 텍스트 리스트 대신 썸네일 그리드와 상세 정보 컨테이너 추가 -->
 					<div id="character-grid" class="char-grid"></div>
-					<!-- 캐릭터 상세 정보 패널을 담을 곳 -->
 					<div id="character-detail-container" class="space-y-3 mt-4"></div>
 				</div>
 
-				<div class="space-y-4 mt-8">
+				<!-- 우측: 레코드 영역 -->
+				<div class="space-y-4">
 					<h2 class="text-2xl font-bold text-emerald-900 pb-2 border-b-2 border-emerald-100 flex justify-between">
 						<span>💿 레코드</span>
 						<span id="rec-count" class="text-slate-300 font-mono">0</span>
 					</h2>
+					<!-- 레코드 리스트 영역 유지 -->
 					<div id="record-list" class="space-y-3"></div>
 				</div>
 			</div>
@@ -132,11 +121,10 @@
 			let db = null;
 			let allUniqueTags = [];
 			let selectedTags = new Set();
-			let currentOpenCharId = null; // 현재 열려있는 캐릭터 ID 추적
+			let currentOpenCharId = null; // 열려있는 캐릭터 정보 추적
 
 			const ATTRIBUTE_TAGS = ['물 속성', '불 속성', '땅 속성', '바람 속성', '빛 속성', '어둠 속성', '무 속성'];
 
-			// 원소 태그 이름과 EET 번호 매핑 (이미지 경로용)
 			const ELEMENT_TAG_TO_EET = {
 			'물 속성': 1, '불 속성': 2, '땅 속성': 3, '바람 속성': 4,
 			'빛 속성': 5, '어둠 속성': 6, '무 속성': 7
@@ -149,6 +137,7 @@
 
 			const tagSet = new Set();
 			Object.values(db.Characters || {}).forEach(c => {
+			tagSet.add(c.Name);
 			Object.values(c.skills || {}).forEach(s => {
 			(s.tags || []).forEach(t => tagSet.add(t));
 			(s.related_potentials || []).forEach(rp => (rp.tags || []).forEach(t => tagSet.add(t)));
@@ -156,6 +145,7 @@
 			Object.values(c.potentials || {}).forEach(p => (p.tags || []).forEach(t => tagSet.add(t)));
 			});
 			Object.values(db.Records || {}).forEach(r => {
+			tagSet.add(r.Name);
 			(r.main_skill || []).forEach(t => tagSet.add(t));
 			Object.values(r.sub_skills || {}).forEach(item => (item.tags || []).forEach(t => tagSet.add(t)));
 			});
@@ -204,7 +194,6 @@
 			if (ATTRIBUTE_TAGS.includes(tag)) {
 			ATTRIBUTE_TAGS.forEach(attr => selectedTags.delete(attr));
 			}
-
 			selectedTags.add(tag);
 			document.getElementById('tag-input').value = '';
 			renderSelectedTags();
@@ -224,42 +213,51 @@
 
 			function resetFilters() {
 			selectedTags.clear();
-			currentOpenCharId = null; // 필터 초기화 시 열린 창 리셋
+			currentOpenCharId = null;
 			renderSelectedTags();
 			filterAndRender();
 			}
 
-			// 캐릭터 썸네일 클릭 시 상세정보 토글
-			function toggleCharDetail(charId, charData, matches) {
-			const detailContainer = document.getElementById('character-detail-container');
+			function getCharElementEET(charData) {
+			let elementTag = null;
+			const allCharTags = new Set();
+			Object.values(charData.skills || {}).forEach(s => (s.tags || []).forEach(t => allCharTags.add(t)));
+			Object.values(charData.potentials || {}).forEach(p => (p.tags || []).forEach(t => allCharTags.add(t)));
 
-			// 모든 썸네일의 active 클래스 제거
+			for (let tag of ATTRIBUTE_TAGS) {
+			if (allCharTags.has(tag)) {
+			elementTag = tag;
+			break;
+			}
+			}
+			return elementTag ? ELEMENT_TAG_TO_EET[elementTag] : null;
+			}
+
+			// 캐릭터 썸네일 클릭 시 하단에 상세 정보 렌더링
+			function toggleCharDetail(charId, charDataStr, matchesStr) {
+			const charData = JSON.parse(decodeURIComponent(charDataStr));
+			const matches = JSON.parse(decodeURIComponent(matchesStr));
+
+			const detailContainer = document.getElementById('character-detail-container');
 			document.querySelectorAll('.char-card').forEach(el => el.classList.remove('active'));
 
 			if (currentOpenCharId === charId) {
-			// 이미 열려있는 캐릭터를 다시 클릭하면 닫기
 			detailContainer.innerHTML = '';
 			currentOpenCharId = null;
 			return;
 			}
 
-			// 클릭한 썸네일에 active 클래스 추가
 			const cardEl = document.getElementById(`char-card-${charId}`);
 			if (cardEl) cardEl.classList.add('active');
-
 			currentOpenCharId = charId;
 
-			// 상세 패널 렌더링
 			let panelContent = `
-			<div class="bg-white p-6 border border-indigo-200 rounded-xl shadow-lg mt-4 animate-[fadeIn_0.2s_ease-in-out]">
-				<div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-100">
-					<img src="Img/Char/Icon/${charId}.png" onerror="this.src='https://via.placeholder.com/64?text=No+Img'" class="w-16 h-16 rounded-lg object-cover shadow-sm">
-						<h3 class="text-xl font-extrabold text-slate-800">${charData.Name} 상세 정보</h3>
+			<div class="bg-white p-5 border border-indigo-200 rounded-xl shadow-lg mt-2">
+				<div class="flex items-center gap-4 mb-4 pb-3 border-b border-slate-100">
+					<img src="Img/Char/Icon/${charId}.png" onerror="this.src='https://via.placeholder.com/64?text=No+Img'" class="w-14 h-14 rounded-lg object-cover shadow-sm">
+						<h3 class="text-lg font-extrabold text-slate-800">${charData.Name}</h3>
 					</div>
 				`;
-
-				// matches 배열을 이용해 스킬/잠재력 렌더링 (이전 단계 로직 재활용)
-				// matches 구조: {type: '스킬', Name: ..., tags: ..., data: 원본데이터(related_potentials 포함)}
 
 				let skillsContent = '';
 				let potentialsContent = '';
@@ -270,7 +268,7 @@
 				<div class="p-3 bg-indigo-50/50 rounded-lg text-sm border border-indigo-50 mb-3">
 					<div class="mb-2">
 						<span class="bg-indigo-500 text-white text-[10px] px-1.5 py-0.5 rounded font-bold mr-1">스킬</span>
-						<strong class="text-base text-indigo-900">${m.Name}</strong>
+						<strong class="text-indigo-900">${m.Name}</strong>
 					</div>
 					<div class="flex flex-wrap gap-1 mb-2">
 						${(m.tags||[]).map(t => `<span class="bg-white border border-indigo-100 px-1.5 py-0.5 rounded text-[11px] font-medium text-slate-600">${t}</span>`).join('')}
@@ -280,8 +278,6 @@
 					skillsContent += `<div class="related-potentials">
 						<div class="text-[11px] font-bold text-slate-400 mb-1">연관 잠재력</div>`;
 						m.data.related_potentials.forEach(pot => {
-						// 필터링 적용 시 매칭되는 것만 보여줄지, 다 보여줄지 결정
-						// 여기서는 일단 연관된 건 다 보여주는 것으로 처리
 						skillsContent += `
 						<div class="p-2 bg-white/60 rounded text-xs border border-indigo-100/50">
 							<div class="mb-1 text-slate-700">
@@ -311,29 +307,12 @@
 				}
 				});
 
-				if(skillsContent) panelContent += `<div class="mb-4">${skillsContent}</div>`;
+				if(skillsContent) panelContent += `<div class="mb-3">${skillsContent}</div>`;
 				if(potentialsContent) panelContent += `<div>${potentialsContent}</div>`;
 
 				panelContent += `
 			</div>`;
 			detailContainer.innerHTML = panelContent;
-			}
-
-			// 캐릭터의 원소 속성 번호를 찾는 헬퍼 함수
-			function getCharElementEET(charData) {
-			let elementTag = null;
-			// 스킬이나 잠재력 태그에서 속성 태그 찾기
-			const allCharTags = new Set();
-			Object.values(charData.skills || {}).forEach(s => (s.tags || []).forEach(t => allCharTags.add(t)));
-			Object.values(charData.potentials || {}).forEach(p => (p.tags || []).forEach(t => allCharTags.add(t)));
-
-			for (let tag of ATTRIBUTE_TAGS) {
-			if (allCharTags.has(tag)) {
-			elementTag = tag;
-			break;
-			}
-			}
-			return elementTag ? ELEMENT_TAG_TO_EET[elementTag] : null;
 			}
 
 			function filterAndRender() {
@@ -344,68 +323,72 @@
 			const recContainer = document.getElementById('record-list');
 
 			let charHtml = '', charCount = 0;
-			// 필터링될 때마다 상세 패널 닫기
 			charDetailContainer.innerHTML = '';
 			currentOpenCharId = null;
 
+			// 캐릭터 렌더링
 			Object.entries(db.Characters || {}).forEach(([id, data]) => {
 			let matches = [];
+			let isCharNameMatch = selectedArr.length > 0 && selectedArr.includes(data.Name);
+
 			Object.values(data.skills || {}).forEach(s => {
-			if(selectedArr.length === 0 || selectedArr.every(t => (s.tags||[]).includes(t))) {
+			if(isCharNameMatch || selectedArr.length === 0 || selectedArr.every(t => (s.tags||[]).includes(t))) {
 			matches.push({type:'스킬', Name:s.Name, tags:s.tags, data: s});
 			}
 			});
 			Object.values(data.potentials || {}).forEach(p => {
-			if(selectedArr.length === 0 || selectedArr.every(t => (p.tags||[]).includes(t))) {
+			if(isCharNameMatch || selectedArr.length === 0 || selectedArr.every(t => (p.tags||[]).includes(t))) {
 			matches.push({type:'잠재력', Name:p.Name, tags:p.tags, data: p});
 			}
 			});
 
 			if(matches.length > 0 || selectedTags.size === 0) {
 			charCount++;
-
-			// 원소 아이콘 번호 가져오기
 			const eetNum = getCharElementEET(data);
 			const elementIconHtml = eetNum ? `<img src="Img/EET/${eetNum}.png" class="element-icon" onerror="this.style.display='none'">
 				` : '';
 
+				// 문자열 따옴표 오류 방지를 위해 encodeURIComponent 적용
+				const dataStr = encodeURIComponent(JSON.stringify(data));
+				const matchesStr = encodeURIComponent(JSON.stringify(matches));
+
 				charHtml += `
-				<div id="char-card-${id}" class="char-card" onclick='toggleCharDetail("${id}", ${JSON.stringify(data).replace(/'/g, "&#39;")}, ${JSON.stringify(matches).replace(/'/g, "&#39;")})'>
-				<div class="char-img-container">
-					${elementIconHtml}
-					<!-- 캐릭터 이미지가 없을 경우를 대비해 onerror 속성 추가 -->
-					<img src="Img/Char/Icon/${id}.png" alt="${data.Name}" class="char-img" onerror="this.src='https://via.placeholder.com/100?text=No+Img'">
-                        </div>
-				<div class="char-name-label">${data.Name}</div>
+				<div id="char-card-${id}" class="char-card" onclick="toggleCharDetail('${id}', '${dataStr}', '${matchesStr}')">
+					<div class="char-img-container">
+						${elementIconHtml}
+						<img src="Img/Char/Icon/${id}.png" alt="${data.Name}" class="char-img" onerror="this.src='https://via.placeholder.com/80?text=No+Img'">
+							</div>
+					<div class="char-name-label">${data.Name}</div>
 				</div>`;
 				}
 				});
 
+				// 레코드 렌더링
 				let recHtml = '', recCount = 0;
 				Object.entries(db.Records || {}).forEach(([id, data]) => {
 				let matches = [];
-				if(data.main_skill && (selectedArr.length === 0 || selectedArr.every(t => data.main_skill.includes(t)))) {
+				let isRecNameMatch = selectedArr.length > 0 && selectedArr.includes(data.Name);
+
+				if(data.main_skill && (isRecNameMatch || selectedArr.length === 0 || selectedArr.every(t => data.main_skill.includes(t)))) {
 				matches.push({Name: '메인 스킬', tags: data.main_skill});
 				}
 				Object.entries(data.sub_skills || {}).forEach(([idx, item]) => {
-				if(selectedArr.length === 0 || selectedArr.every(t => (item.tags||[]).includes(t))) {
+				if(isRecNameMatch || selectedArr.length === 0 || selectedArr.every(t => (item.tags||[]).includes(t))) {
 				matches.push({Name: `보조 스킬 ${idx}`, tags: item.tags});
 				}
 				});
 
 				if(matches.length > 0 || selectedTags.size === 0) {
 				recCount++;
-				recHtml += `
-				<div class="rec-item">
+				recHtml += `<div class="rec-item">
 					<button class="toggle-btn" onclick="toggleDetail(this)">
 						<span>${data.Name}</span>
 					</button>
 					<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
-						${matches.map(m => `
-						<div class="p-3 bg-emerald-50/50 rounded-lg text-sm border border-emerald-50">
+						${matches.map(m => `<div class="p-3 bg-emerald-50/50 rounded-lg text-sm border border-emerald-50">
 							<div class="mb-1 font-bold text-emerald-800">${m.Name}</div>
 							<div class="flex flex-wrap gap-1">
-								${(m.tags||[]).map(t => `<span class="bg-white border border-emerald-100 px-1.5 py-0.5 rounded text-[11px] text-emerald-700">${t}</span>`).join('')}
+								${(m.tags||[]).map(t => `<span class="bg-white border border-emerald-100 px-1 rounded text-[11px] text-emerald-700">${t}</span>`).join('')}
 							</div>
 						</div>`).join('')}
 					</div>
@@ -413,17 +396,13 @@
 				}
 				});
 
-				charGrid.innerHTML = charHtml;
-				recContainer.innerHTML = recHtml;
+				charGrid.innerHTML = charHtml || '<div class="text-sm text-slate-400">결과가 없습니다.</div>';
+				recContainer.innerHTML = recHtml || '<div class="text-sm text-slate-400">결과가 없습니다.</div>';
 				document.getElementById('char-count').innerText = charCount;
 				document.getElementById('rec-count').innerText = recCount;
 				}
 
-				// 레코드 패널 토글용 함수
-				function toggleDetail(btn) {
-				btn.classList.toggle('active');
-				btn.nextElementSibling.classList.toggle('active');
-				}
+				function toggleDetail(btn) { btn.classList.toggle('active'); btn.nextElementSibling.classList.toggle('active'); }
 
 				init();
 			</script>
