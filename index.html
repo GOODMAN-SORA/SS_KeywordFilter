@@ -129,3 +129,52 @@
 			let charHtml = '', charCount = 0;
 			Object.entries(db.Characters).forEach(([id, data]) => {
 			let matches = [...Object.values(data.skills), ...Object.values(data.potentials)].filter(item => selectedArr.every(t => item.tags.includes(t)));
+			if(matches.length > 0 || selectedTags.size === 0) {
+			charCount++;
+			charHtml += `<div class="char-item">
+				<button class="toggle-btn" onclick="toggleDetail(this)">${data.Name}</button>
+				<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
+					${matches.map(m => `<div class="p-2 bg-indigo-50 rounded text-sm font-bold">
+						${m.Name}<div class="font-normal flex flex-wrap gap-1">
+							${m.tags.map(t => `<span class="bg-white border px-1 rounded font-normal">${t}</span>`).join('')}
+						</div>
+					</div>`).join('')}
+				</div>
+			</div>`;
+			}
+			});
+
+			// 레코드
+			let recHtml = '', recCount = 0;
+			Object.entries(db.Records).forEach(([id, data]) => {
+			let matches = [];
+			if(selectedArr.every(t => data.main_skill.includes(t))) matches.push({Name: "메인 스킬", tags: data.main_skill});
+			Object.entries(data.sub_skills).forEach(([idx, item]) => { if(selectedArr.every(t => item.tags.includes(t))) matches.push({Name: `보조 스킬 ${idx}`, tags: item.tags}); });
+
+			if(matches.length > 0 || selectedTags.size === 0) {
+			recCount++;
+			recHtml += `<div class="rec-item">
+				<button class="toggle-btn" onclick="toggleDetail(this)">${data.Name}</button>
+				<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
+					${matches.map(m => `<div class="p-2 bg-emerald-50 rounded text-sm font-bold">
+						${m.Name}<div class="font-normal flex flex-wrap gap-1">
+							${m.tags.map(t => `<span class="bg-white border px-1 rounded font-normal">${t}</span>`).join('')}
+						</div>
+					</div>`).join('')}
+				</div>
+			</div>`;
+			}
+			});
+
+			document.getElementById('character-list').innerHTML = charHtml;
+			document.getElementById('record-list').innerHTML = recHtml;
+			document.getElementById('char-count').innerText = charCount;
+			document.getElementById('rec-count').innerText = recCount;
+			}
+
+			function toggleDetail(el) { el.classList.toggle('active'); el.nextElementSibling.classList.toggle('active'); }
+
+			init();
+		</script>
+	</body>
+</html>
