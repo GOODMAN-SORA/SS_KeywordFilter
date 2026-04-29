@@ -15,6 +15,8 @@
 					.detail-panel.active { display: block; }
 					::-webkit-scrollbar { width: 6px; }
 					::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+					/* 들여쓰기 디자인 추가 */
+					.related-potentials { @apply mt-2 ml-3 pl-3 border-l-2 border-indigo-200 space-y-2; }
 				</style>
 			</head>
 	<body class="bg-slate-50 text-slate-900 min-h-screen pb-20">
@@ -63,7 +65,6 @@
 			let allUniqueTags = [];
 			let selectedTags = new Set();
 
-			// 배타적 선택이 필요한 속성 태그 목록
 			const ATTRIBUTE_TAGS = ['물 속성', '불 속성', '땅 속성', '바람 속성', '빛 속성', '어둠 속성'];
 
 			async function init() {
@@ -73,7 +74,10 @@
 
 			const tagSet = new Set();
 			Object.values(db.Characters || {}).forEach(c => {
-			Object.values(c.skills || {}).forEach(s => (s.tags || []).forEach(t => tagSet.add(t)));
+			Object.values(c.skills || {}).forEach(s => {
+			(s.tags || []).forEach(t => tagSet.add(t));
+			(s.related_potentials || []).forEach(rp => (rp.tags || []).forEach(t => tagSet.add(t)));
+			});
 			Object.values(c.potentials || {}).forEach(p => (p.tags || []).forEach(t => tagSet.add(t)));
 			});
 			Object.values(db.Records || {}).forEach(r => {
@@ -122,7 +126,6 @@
 			}
 
 			function addTag(tag) {
-			// [수정] 속성 태그 배타적 선택 로직
 			if (ATTRIBUTE_TAGS.includes(tag)) {
 			ATTRIBUTE_TAGS.forEach(attr => selectedTags.delete(attr));
 			}
@@ -154,26 +157,82 @@
 
 			let charHtml = '', charCount = 0;
 			Object.entries(db.Characters || {}).forEach(([id, data]) => {
-			let matches = [];
-			Object.values(data.skills || {}).forEach(s => { if(selectedArr.every(t => (s.tags||[]).includes(t))) matches.push({type:'스킬', Name:s.Name, tags:s.tags}); });
-			Object.values(data.potentials || {}).forEach(p => { if(selectedArr.every(t => (p.tags||[]).includes(t))) matches.push({type:'잠재력', Name:p.Name, tags:p.tags}); });
+			let hasMatch = false;
+			let panelContent = '';
 
-			if(matches.length > 0 || selectedTags.size === 0) {
+			// 1. 스킬 및 종속 잠재력 렌더링
+			Object.values(data.skills || {}).forEach(skill => {
+			// 스킬 자체가 검색 조건에 맞는지 확인
+			const skillMatches = selectedArr.every(t => (skill.tags||[]).includes(t));
+
+			// 하위 잠재력 중 하나라도 조건에 맞는지 확인
+			const relatedPots = skill.related_potentials || [];
+			const matchingPots = relatedPots.filter(p => selectedArr.every(t => (p.tags||[]).includes(t)));
+
+			// 필터가 없을 때는 모두 표시, 필터가 있을 때는 스킬이 맞거나 매칭되는 하위 잠재력이 있을 때만 표시
+			if (selectedTags.size === 0 || skillMatches || matchingPots.length > 0) {
+			hasMatch = true;
+			panelContent += `
+			<div class="p-3 bg-indigo-50/50 rounded-lg text-sm border border-indigo-50 mb-2">
+				<div class="mb-1">
+					<span class="bg-indigo-500 text-white text-[10px] px-1 py-0.5 rounded font-bold">스킬</span>
+					<strong>${skill.Name}</strong>
+				</div>
+				<div class="flex flex-wrap gap-1">
+					${(skill.tags||[]).map(t => `<span class="bg-white border border-indigo-100 px-1 rounded text-[11px]">${t}</span>`).join('')}
+				</div>`;
+
+				// 스킬 하위 잠재력 표시 (필터링 중이면 매칭된 것만, 아니면 전부 표시)
+				const potsToDisplay = selectedTags.size > 0 ? (skillMatches ? relatedPots : matchingPots) : relatedPots;
+
+				if (potsToDisplay.length > 0) {
+				panelContent += `<div class="related-potentials">
+					`;
+					potsToDisplay.forEach(pot => {
+					panelContent += `
+					<div class="p-2 bg-indigo-100/30 rounded text-xs border border-indigo-100">
+						<div class="mb-1 text-slate-700">
+							↳ <strong>${pot.Name}</strong>
+						</div>
+						<div class="flex flex-wrap gap-1">
+							${(pot.tags||[]).map(t => `<span class="bg-white border border-indigo-100 px-1 rounded text-[10px] text-slate-600">${t}</span>`).join('')}
+						</div>
+					</div>`;
+					});
+					panelContent += `
+				</div>`;
+				}
+				panelContent += `
+			</div>`;
+			}
+			});
+
+			// 2. 공통 잠재력 렌더링
+			Object.values(data.potentials || {}).forEach(p => {
+			if(selectedTags.size === 0 || selectedArr.every(t => (p.tags||[]).includes(t))) {
+			hasMatch = true;
+			panelContent += `
+			<div class="p-3 bg-slate-50 rounded-lg text-sm border border-slate-100 mb-2">
+				<div class="mb-1">
+					<span class="bg-slate-400 text-white text-[10px] px-1 py-0.5 rounded font-bold">공통 잠재력</span>
+					<strong>${p.Name}</strong>
+				</div>
+				<div class="flex flex-wrap gap-1">
+					${(p.tags||[]).map(t => `<span class="bg-white border border-slate-200 px-1 rounded text-[11px] text-slate-600">${t}</span>`).join('')}
+				</div>
+			</div>`;
+			}
+			});
+
+			if(hasMatch) {
 			charCount++;
-			charHtml += `<div class="char-item">
+			charHtml += `
+			<div class="char-item">
 				<button class="toggle-btn" onclick="toggleDetail(this)">
 					<span>${data.Name}</span>
 				</button>
-				<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl space-y-2 mt-[-5px]">
-					${matches.map(m => `<div class="p-3 bg-indigo-50/50 rounded-lg text-sm border border-indigo-50">
-						<div class="mb-1">
-							<span class="bg-indigo-500 text-white text-[10px] px-1 py-0.5 rounded font-bold">${m.type}</span>
-							<strong>${m.Name}</strong>
-						</div>
-						<div class="flex flex-wrap gap-1">
-							${(m.tags||[]).map(t => `<span class="bg-white border border-indigo-100 px-1 rounded text-[11px]">${t}</span>`).join('')}
-						</div>
-					</div>`).join('')}
+				<div class="detail-panel bg-white p-4 border-x border-b border-slate-100 rounded-b-xl mt-[-5px]">
+					${panelContent}
 				</div>
 			</div>`;
 			}
