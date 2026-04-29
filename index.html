@@ -68,7 +68,7 @@
 
 			async function init() {
 			try {
-			const res = await fetch('FilteredDB.json');
+			const res = await fetch('FilteredDB.json', { cache: 'no-cache' });
 			db = await res.json();
 
 			const tagSet = new Set();
