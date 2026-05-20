@@ -1,0 +1,444 @@
+[
+    {
+        "Type": "DataMainSkill",
+        "Id": "100101",
+        "Tag": [
+            "조건-ㅈㄷㄱ--/대상--/효과--"
+        ]
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "100201",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "100301",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "100401",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "100501",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "100601",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "100701",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "100801",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "200101",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "200201",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "200301",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "200501",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "200601",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "200701",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "200801",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "200901",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "201001",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "300301",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "300401",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "300501",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "300601",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "300701",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "300801",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "300901",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "301001",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "301101",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "301201",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "301301",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "301401",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "301501",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "301601",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "301701",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "301801",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "301901",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "302001",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "302101",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "302201",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "302301",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "302401",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "302501",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "302601",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "400101",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "400201",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "400301",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "400401",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "400501",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "400601",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "400701",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "400801",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "400901",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "401001",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "401101",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "401201",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "401301",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "401401",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "401501",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "401601",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "401701",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "401801",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "401901",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "402001",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "402101",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "402201",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "402301",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "402401",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "402601",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "402701",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "402801",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "403001",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "403101",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "403201",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "403301",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "403601",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "403701",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "403801",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "403901",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "404001",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "404101",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "404201",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "404301",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "404401",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "404501",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "404601",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "404701",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "404801",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "404901",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "405001",
+        "Tag": []
+    },
+    {
+        "Type": "DataMainSkill",
+        "Id": "405101",
+        "Tag": []
+    }
+]

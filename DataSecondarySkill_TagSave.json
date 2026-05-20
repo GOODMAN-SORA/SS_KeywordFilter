@@ -1,0 +1,604 @@
+[
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3003101",
+        "Tag": [
+            "조건-ㄷㅅㄱ--/대상--/효과--"
+        ]
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3004101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3005101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3006101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3007101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3008101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3009101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3010101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3011101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3012101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3013101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3014101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3015101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3016101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3017101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3018101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3019101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3020101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3021101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3022101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3023101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3024101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3025101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "3026101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4001101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4001201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4002101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4002201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4003101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4003201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4004101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4004201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4005101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4005201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4006101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4006201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4007101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4007201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4008101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4008201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4009101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4009201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4010101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4010201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4011101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4011201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4012101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4012201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4013101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4013201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4014101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4014201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4014301",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4014401",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4015101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4015201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4016101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4016201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4017101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4017201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4018101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4018201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4019101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4019201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4020101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4020201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4021101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4021201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4022101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4022201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4023101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4023201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4024101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4024201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4026101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4026201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4027101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4027201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4028101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4028201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4030101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4030201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4031101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4031201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4032101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4032201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4033101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4033201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4036101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4036201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4037101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4037201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4038101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4038201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4039101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4039201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4040101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4040201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4041101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4041201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4042101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4042201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4043101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4043201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4044101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4044201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4045101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4045201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4046101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4046201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4047101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4047201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4048101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4048201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4049101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4049201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4050101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4050201",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4051101",
+        "Tag": []
+    },
+    {
+        "Type": "DataSecondarySkill",
+        "Id": "4051201",
+        "Tag": []
+    }
+]
